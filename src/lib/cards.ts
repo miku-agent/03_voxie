@@ -18,13 +18,23 @@ export type Card = {
   era?: string;
   mood?: string[];
   whyItMatters?: string;
+  authorHandle?: string;
+  authorName?: string;
 };
 
 export const cards = (
   seed as Array<
     Omit<
       Card,
-      "summary" | "description" | "producer" | "year" | "era" | "mood" | "whyItMatters"
+      | "summary"
+      | "description"
+      | "producer"
+      | "year"
+      | "era"
+      | "mood"
+      | "whyItMatters"
+      | "authorHandle"
+      | "authorName"
     >
   >
 ).map((card) => ({
@@ -45,7 +55,7 @@ const enrichCard = (card: {
   ...cardDetails[card.slug],
 });
 
-const normalizeCard = (card: {
+type SupabaseCardRow = {
   slug: string;
   title: string;
   type: string;
@@ -53,7 +63,9 @@ const normalizeCard = (card: {
   tags: string[] | null;
   source_url: string | null;
   youtube_url: string | null;
-}): Card =>
+};
+
+const normalizeCard = (card: SupabaseCardRow): Card =>
   enrichCard({
     slug: card.slug,
     title: card.title,
@@ -87,6 +99,8 @@ export const searchCards = (query: string, items: Card[] = cards) => {
       card.title.toLowerCase().includes(normalized) ||
       card.character.toLowerCase().includes(normalized) ||
       (card.producer?.toLowerCase().includes(normalized) ?? false) ||
+      (card.authorName?.toLowerCase().includes(normalized) ?? false) ||
+      (card.authorHandle?.toLowerCase().includes(normalized) ?? false) ||
       card.tags.some((tag) => tag.toLowerCase().includes(normalized))
     );
   });

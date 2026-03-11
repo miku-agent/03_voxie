@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCardBySlugAsync, getCardExternalLinks, getYouTubeEmbedUrl } from "@/lib/cards";
 import { listDecks } from "@/lib/decks";
+import { getProfileHref } from "@/lib/profiles";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -57,6 +58,13 @@ export default async function CardDetail({ params }: Props) {
                 ))}
               </div>
               <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                {card.authorName && card.authorHandle ? (
+                  <Link className="terminal-button w-full sm:w-auto" href={getProfileHref(card.authorHandle)!}>
+                    작성자 {card.authorName}
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center text-sm text-[var(--terminal-muted)]">작성자 정보 없음</span>
+                )}
                 {relatedDecks.length > 0 && (
                   <Link className="terminal-button w-full sm:w-auto" href={`/decks/${relatedDecks[0].slug}`}>
                     관련 덱 보기
@@ -79,6 +87,16 @@ export default async function CardDetail({ params }: Props) {
                 <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
                   <span className="text-[var(--terminal-muted)]">캐릭터</span>
                   <span>{card.character}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 border border-[var(--terminal-border)] px-3 py-2">
+                  <span className="text-[var(--terminal-muted)]">작성자</span>
+                  {card.authorName && card.authorHandle ? (
+                    <Link href={getProfileHref(card.authorHandle)!} className="text-right underline-offset-4 hover:underline">
+                      {card.authorName}
+                    </Link>
+                  ) : (
+                    <span className="text-right text-[var(--terminal-muted)]">unknown</span>
+                  )}
                 </div>
                 {card.producer && (
                   <div className="flex items-center justify-between gap-4 border border-[var(--terminal-border)] px-3 py-2">
@@ -204,6 +222,9 @@ export default async function CardDetail({ params }: Props) {
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-sm font-semibold">{deck.name}</p>
                         <span className="text-xs text-[var(--terminal-muted)]">{deck.cards.length} cards</span>
+                      </div>
+                      <div className="mt-2 text-xs text-[var(--terminal-muted)]">
+                        {deck.authorName && deck.authorHandle ? `by ${deck.authorName}` : "author unknown"}
                       </div>
                       <p className="mt-1 text-sm leading-6 text-[var(--terminal-muted)]">{deck.shortPitch ?? deck.description}</p>
                     </Link>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listDecks, searchDecks } from "@/lib/decks";
+import { getProfileHref } from "@/lib/profiles";
 
 export default async function DeckListPage({
   searchParams,
@@ -78,6 +79,15 @@ export default async function DeckListPage({
                     <h2 className="truncate text-base font-semibold sm:text-lg">
                       <Link href={`/decks/${deck.slug}`}>{deck.name}</Link>
                     </h2>
+                    <div className="mt-2 text-xs text-[var(--terminal-muted)]">
+                      {deck.authorName && deck.authorHandle ? (
+                        <Link href={getProfileHref(deck.authorHandle)!} className="underline-offset-4 hover:underline">
+                          by {deck.authorName}
+                        </Link>
+                      ) : (
+                        <span>author unknown</span>
+                      )}
+                    </div>
                     <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--terminal-soft)]">
                       {deck.shortPitch ?? deck.description}
                     </p>

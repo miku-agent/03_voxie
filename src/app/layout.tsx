@@ -58,6 +58,9 @@ export default function RootLayout({
                 <Link className="nav-link" href="/decks/new">
                   덱 추가
                 </Link>
+                <Link className="nav-link" href="/users/bini59">
+                  프로필
+                </Link>
               </nav>
             </div>
           </header>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getDeckBySlugAsync } from "@/lib/decks";
 import { getCardBySlugAsync } from "@/lib/cards";
+import { getProfileHref } from "@/lib/profiles";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -74,6 +75,15 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
                   </span>
                 ))}
               </div>
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                {deck.authorName && deck.authorHandle ? (
+                  <Link className="terminal-button w-full sm:w-auto" href={getProfileHref(deck.authorHandle)!}>
+                    작성자 {deck.authorName}
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center text-sm text-[var(--terminal-muted)]">작성자 정보 없음</span>
+                )}
+              </div>
             </div>
 
             <aside className="terminal-frame p-4">
@@ -86,6 +96,16 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
                 <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
                   <span className="text-[var(--terminal-muted)]">태그 수</span>
                   <span>{deck.tags.length}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 border border-[var(--terminal-border)] px-3 py-2">
+                  <span className="text-[var(--terminal-muted)]">작성자</span>
+                  {deck.authorName && deck.authorHandle ? (
+                    <Link href={getProfileHref(deck.authorHandle)!} className="text-right underline-offset-4 hover:underline">
+                      {deck.authorName}
+                    </Link>
+                  ) : (
+                    <span className="text-right text-[var(--terminal-muted)]">unknown</span>
+                  )}
                 </div>
                 {deck.featured && (
                   <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
@@ -160,6 +180,7 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
               <div className="dense-meta mt-3">
                 {card?.producer && <span>{card.producer}</span>}
                 {card?.year && <span>{card.year}</span>}
+                {card?.authorName ? <span>by {card.authorName}</span> : <span>author unknown</span>}
                 <span>{card?.tags.length ?? 0} tags</span>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">

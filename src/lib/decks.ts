@@ -12,24 +12,30 @@ export type Deck = {
   shortPitch?: string;
   curatorNote?: string;
   featured?: boolean;
+  authorHandle?: string;
+  authorName?: string;
 };
 
-export const decks = (decksSeed as Array<Omit<Deck, "shortPitch" | "curatorNote" | "featured">>).map(
-  (deck) => ({
-    ...deck,
-    ...deckDetails[deck.slug],
-  })
-);
+export const decks = (
+  decksSeed as Array<
+    Omit<Deck, "shortPitch" | "curatorNote" | "featured" | "authorHandle" | "authorName">
+  >
+).map((deck) => ({
+  ...deck,
+  ...deckDetails[deck.slug],
+}));
 
 type SupabaseDeckRow = {
   slug: string;
   name: string;
   description: string | null;
   tags: string[] | null;
-  deck_cards?: Array<{
-    position: number;
-    cards: { slug: string } | null;
-  }> | null;
+  deck_cards?:
+    | Array<{
+        position: number;
+        cards: { slug: string } | null;
+      }>
+    | null;
 };
 
 const enrichDeck = (deck: {
@@ -67,6 +73,8 @@ export const searchDecks = (query: string, items: Deck[] = decks) => {
       deck.name.toLowerCase().includes(normalized) ||
       (deck.description?.toLowerCase().includes(normalized) ?? false) ||
       (deck.shortPitch?.toLowerCase().includes(normalized) ?? false) ||
+      (deck.authorName?.toLowerCase().includes(normalized) ?? false) ||
+      (deck.authorHandle?.toLowerCase().includes(normalized) ?? false) ||
       deck.tags.some((tag) => tag.toLowerCase().includes(normalized))
     );
   });
@@ -78,9 +86,7 @@ export const listDecks = async (): Promise<Deck[]> => {
 
   const { data, error } = await supabase
     .from("decks")
-    .select(
-      "slug, name, description, tags, deck_cards(position, cards!inner(slug))"
-    )
+    .select("slug, name, description, tags, deck_cards(position, cards!inner(slug))")
     .order("name", { ascending: true });
 
   if (error || !data) {
@@ -97,9 +103,7 @@ export const getDeckBySlugAsync = async (slug: string): Promise<Deck | undefined
 
   const { data, error } = await supabase
     .from("decks")
-    .select(
-      "slug, name, description, tags, deck_cards(position, cards!inner(slug))"
-    )
+    .select("slug, name, description, tags, deck_cards(position, cards!inner(slug))")
     .eq("slug", slug)
     .maybeSingle();
 
