@@ -21,3 +21,6 @@ export const filterCards = (tag?: string) => {
   if (!tag) return cards;
   return cards.filter((card) => card.tags.includes(tag));
 };
+
+export const getCardBySlug = (slug: string) =>
+  cards.find((card) => card.slug === slug);

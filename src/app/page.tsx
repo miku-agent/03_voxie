@@ -59,7 +59,11 @@ export default function Home({ searchParams }: Props) {
                 <span>{card.character}</span>
                 <span className="uppercase">{card.type}</span>
               </div>
-              <h2 className="mt-3 text-lg font-semibold">{card.title}</h2>
+              <h2 className="mt-3 text-lg font-semibold">
+                <Link className="hover:text-emerald-300" href={`/cards/${card.slug}`}>
+                  {card.title}
+                </Link>
+              </h2>
               <div className="mt-4 flex flex-wrap gap-2">
                 {card.tags.map((item) => (
                   <span
