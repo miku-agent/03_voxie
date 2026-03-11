@@ -43,16 +43,16 @@ export default function RootLayout({
                   Voxie
                 </Link>
                 <p className="mt-1 text-sm text-[var(--terminal-muted)]">
-                  보컬로이드 카드를 모으고 덱으로 정리하는 아카이브
+                  보컬로이드 카드를 덱으로 엮고 큐레이터 흐름으로 공유하는 플랫폼
                 </p>
               </div>
 
               <nav className="flex flex-wrap items-center gap-2 text-sm text-[var(--terminal-soft)]">
-                <Link className="nav-link" href="/">
-                  카드
-                </Link>
                 <Link className="nav-link" href="/decks">
                   덱
+                </Link>
+                <Link className="nav-link" href="/">
+                  카드
                 </Link>
                 <Link className="nav-link" href="/cards/new">
                   카드 추가
