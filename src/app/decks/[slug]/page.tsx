@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ShareDeckActions from "./ShareDeckActions";
+import SocialActions from "./SocialActions";
 import { getCardBySlugAsync, listCards, type Card } from "@/lib/cards";
 import { getDeckShareDescription, getDeckShareUrl } from "@/lib/deck-share";
 import { getDeckBySlugAsync, listDecks } from "@/lib/decks";
 import { getProfileHref } from "@/lib/profiles";
 import { getRelatedCards, getRelatedDecks } from "@/lib/related";
+import { getDeckSocialMeta, getProfileSocialMeta } from "@/lib/social";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -74,6 +76,8 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
   const allCards = await listCards();
   const relatedDecks = getRelatedDecks(deck, allDecks);
   const relatedCards = cards.length > 0 ? getRelatedCards(cards[0], allCards) : [];
+  const social = getDeckSocialMeta(deck.slug);
+  const profileSocial = deck.authorHandle ? getProfileSocialMeta(deck.authorHandle) : { followers: 0 };
 
   return (
     <div className="min-h-screen text-white">
@@ -196,7 +200,15 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
             )}
           </article>
 
-          <ShareDeckActions title={deck.name} url={shareUrl} />
+          <div className="space-y-6">
+            <ShareDeckActions title={deck.name} url={shareUrl} />
+            <SocialActions
+              initialLikes={social.likes}
+              initialBookmarks={social.bookmarks}
+              curatorName={deck.authorName}
+              initialFollowers={profileSocial.followers}
+            />
+          </div>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">

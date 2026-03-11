@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { listCards } from "@/lib/cards";
 import { listDecks } from "@/lib/decks";
 import { getProfileByHandle } from "@/lib/profiles";
+import { getProfileSocialMeta } from "@/lib/social";
+import FollowCuratorButton from "./FollowCuratorButton";
 
 type Props = {
   params: Promise<{ handle: string }>;
@@ -17,6 +19,7 @@ export default async function UserProfilePage({ params }: Props) {
   const [cards, decks] = await Promise.all([listCards(), listDecks()]);
   const authoredCards = cards.filter((card) => card.authorHandle === handle);
   const authoredDecks = decks.filter((deck) => deck.authorHandle === handle);
+  const social = getProfileSocialMeta(handle);
 
   return (
     <div className="min-h-screen text-white">
@@ -34,7 +37,9 @@ export default async function UserProfilePage({ params }: Props) {
                 <span>@{profile.handle}</span>
                 <span>{authoredCards.length} cards</span>
                 <span>{authoredDecks.length} decks</span>
+                <span>{social.followers} followers</span>
               </div>
+              <FollowCuratorButton name={profile.name} initialFollowers={social.followers} />
             </div>
 
             <aside className="terminal-frame p-4">
@@ -47,6 +52,10 @@ export default async function UserProfilePage({ params }: Props) {
                 <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
                   <span className="text-[var(--terminal-muted)]">작성 덱</span>
                   <span>{authoredDecks.length}</span>
+                </div>
+                <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                  <span className="text-[var(--terminal-muted)]">팔로워</span>
+                  <span>{social.followers}</span>
                 </div>
               </div>
             </aside>
