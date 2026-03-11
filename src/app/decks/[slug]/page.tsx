@@ -29,9 +29,14 @@ export default function DeckDetailPage({ params }: Props) {
   return (
     <div className="min-h-screen bg-black text-white">
       <main className="mx-auto max-w-4xl px-6 py-12">
-        <Link className="text-sm text-[var(--terminal-fg)]" href="/decks">
-          ← 덱 목록으로
-        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link className="text-sm text-[var(--terminal-fg)]" href="/decks">
+            ← 덱 목록으로
+          </Link>
+          <Link className="terminal-button text-xs" href={`/decks/${deck.slug}/edit`}>
+            [ EDIT DECK ]
+          </Link>
+        </div>
 
         <article className="mt-8 terminal-frame p-6">
           <h1 className="text-2xl font-semibold">{deck.name}</h1>
