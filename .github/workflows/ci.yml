@@ -29,4 +29,4 @@ jobs:
         run: pnpm run typecheck
 
       - name: Test
-        run: pnpm test --if-present
+        run: pnpm test
