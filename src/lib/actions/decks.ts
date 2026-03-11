@@ -5,6 +5,11 @@ import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 import { DeckPayload } from "@/lib/deck-form";
 import { buildDeckUpdatePayload } from "@/lib/deck-edit";
+import {
+  insertMockDeck,
+  isMockWriteModeEnabled,
+  updateMockDeck,
+} from "@/lib/mock-db";
 
 function generateSlug(name: string): string {
   return name
@@ -15,14 +20,35 @@ function generateSlug(name: string): string {
 
 export async function createDeck(payload: DeckPayload) {
   try {
+    const slug = generateSlug(payload.name) + '-' + Date.now();
+
+    if (isMockWriteModeEnabled()) {
+      insertMockDeck({
+        slug,
+        name: payload.name,
+        description: payload.description,
+        tags: payload.tags || [],
+        cards: payload.cards || [],
+      });
+
+      revalidatePath("/decks");
+      revalidatePath(`/decks/${slug}`);
+
+      return {
+        success: true,
+        data: {
+          slug,
+          name: payload.name,
+        }
+      };
+    }
+
     if (!isSupabaseConfigured() || !supabase) {
       return {
         success: false,
         error: "Supabase not configured. Deck creation is disabled in local mode."
       };
     }
-
-    const slug = generateSlug(payload.name) + '-' + Date.now();
 
     const { data: deck, error: deckError } = await supabase
       .from("decks")
@@ -103,14 +129,42 @@ export async function createDeck(payload: DeckPayload) {
 
 export async function updateDeck(deckSlug: string, input: Parameters<typeof buildDeckUpdatePayload>[0]) {
   try {
+    const payload = buildDeckUpdatePayload(input);
+
+    if (isMockWriteModeEnabled()) {
+      const updated = updateMockDeck(deckSlug, {
+        name: payload.name,
+        description: payload.description,
+        tags: payload.tags || [],
+        cards: payload.cards || [],
+      });
+
+      if (!updated) {
+        return {
+          success: false,
+          error: "Deck not found"
+        };
+      }
+
+      revalidatePath("/decks");
+      revalidatePath(`/decks/${deckSlug}`);
+      revalidatePath(`/decks/${deckSlug}/edit`);
+
+      return {
+        success: true,
+        data: {
+          slug: deckSlug,
+          name: updated.name,
+        }
+      };
+    }
+
     if (!isSupabaseConfigured() || !supabase) {
       return {
         success: false,
         error: "Supabase not configured. Deck editing is disabled in local mode."
       };
     }
-
-    const payload = buildDeckUpdatePayload(input);
 
     const { data: existingDeck, error: fetchError } = await supabase
       .from("decks")

@@ -1,5 +1,6 @@
 import decksSeed from "@/data/decks.json";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
+import { isMockWriteModeEnabled, listMockDecks } from "@/lib/mock-db";
 
 export type Deck = {
   slug: string;
@@ -50,6 +51,7 @@ export const searchDecks = (query: string, items: Deck[] = decks) => {
 };
 
 export const listDecks = async (): Promise<Deck[]> => {
+  if (isMockWriteModeEnabled()) return listMockDecks();
   if (!isSupabaseConfigured() || !supabase) return decks;
 
   const { data, error } = await supabase
@@ -68,6 +70,7 @@ export const listDecks = async (): Promise<Deck[]> => {
 };
 
 export const getDeckBySlugAsync = async (slug: string): Promise<Deck | undefined> => {
+  if (isMockWriteModeEnabled()) return getDeckBySlug(slug, listMockDecks());
   if (!isSupabaseConfigured() || !supabase) return getDeckBySlug(slug);
 
   const { data, error } = await supabase
