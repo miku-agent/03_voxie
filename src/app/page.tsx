@@ -16,86 +16,120 @@ export default async function Home({ searchParams }: Props) {
   const tags = listTags(allCards);
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <header className="mb-10">
-          <h1 className="text-3xl font-semibold">Voxie</h1>
-          <p className="mt-2 text-sm text-[var(--terminal-muted)]">
-            보컬로이드 순간을 카드로 모으는 커뮤니티 아카이브
-          </p>
-          <div className="mt-4 flex gap-4 text-sm">
-            <Link className="text-[var(--terminal-fg)]" href="/decks">
-              덱 보기 →
-            </Link>
-            <Link className="text-[var(--terminal-fg)]" href="/cards/new">
-              카드 작성 →
-            </Link>
+    <div className="min-h-screen text-white">
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+        <header className="terminal-shell overflow-hidden">
+          <div className="terminal-titlebar">
+            <span>voxie://miku-archive</span>
+            <span>status [live]</span>
+          </div>
+          <div className="grid gap-8 px-5 py-6 sm:px-8 sm:py-8 md:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] md:items-end">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--terminal-accent)]">
+                Hatsune Miku Console
+              </p>
+              <h1 className="mt-3 text-4xl font-semibold uppercase tracking-[0.18em] sm:text-5xl">
+                Voxie
+                <span className="ml-2 cursor-blink text-[var(--terminal-accent)]">█</span>
+              </h1>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-[var(--terminal-muted)] sm:text-base">
+                보컬로이드 순간을 카드로 모으는 커뮤니티 아카이브. 미쿠 블루그린
+                phosphor 톤으로 다시 튜닝한 터미널 UI예요.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3 text-sm">
+                <Link className="terminal-button" href="/decks">
+                  [ 덱 보기 ]
+                </Link>
+                <Link className="terminal-button" href="/cards/new">
+                  [ 카드 작성 ]
+                </Link>
+              </div>
+            </div>
+
+            <div className="terminal-frame p-4 sm:p-5">
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-[var(--terminal-muted)]">
+                <span>signal</span>
+                <span>{cards.length.toString().padStart(2, "0")} cards</span>
+              </div>
+              <div className="mt-4 space-y-3 text-sm">
+                <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                  <span className="text-[var(--terminal-muted)]">theme</span>
+                  <span className="text-[var(--terminal-fg)]">miku://39c5bb</span>
+                </div>
+                <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                  <span className="text-[var(--terminal-muted)]">tags</span>
+                  <span className="text-[var(--terminal-fg)]">{tags.length}</span>
+                </div>
+                <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                  <span className="text-[var(--terminal-muted)]">query</span>
+                  <span className="truncate pl-4 text-right text-[var(--terminal-fg)]">
+                    {query || "--all"}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </header>
 
-        <section className="mb-8 space-y-4">
-          <form action="/" className="flex gap-2">
-            <input
-              type="text"
-              name="q"
-              defaultValue={query}
-              placeholder="search --cards"
-              className="w-full border border-[var(--terminal-border)] bg-black px-3 py-2 text-sm text-[var(--terminal-fg)]"
-            />
-            <button type="submit" className="terminal-button">
-              [ 검색 ]
-            </button>
-          </form>
+        <section className="mt-8 terminal-shell overflow-hidden">
+          <div className="terminal-titlebar">
+            <span>filter --cards</span>
+            <span>{tag ? `tag:${tag}` : "tag:*"}</span>
+          </div>
+          <div className="space-y-4 px-5 py-5 sm:px-6">
+            <form action="/" className="flex flex-col gap-3 sm:flex-row">
+              <input
+                type="text"
+                name="q"
+                defaultValue={query}
+                placeholder="search --cards"
+                className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
+              />
+              <button type="submit" className="terminal-button sm:min-w-36">
+                [ 검색 ]
+              </button>
+            </form>
 
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href={query ? `/?q=${encodeURIComponent(query)}` : "/"}
-              data-testid="tag-all"
-              className={`rounded-full border px-3 py-1 text-xs ${
-                !tag ? "border-emerald-400 text-[var(--terminal-fg)]" : "border-zinc-700 text-[var(--terminal-muted)]"
-              }`}
-            >
-              전체
-            </Link>
-            {tags.map((item) => (
+            <div className="flex flex-wrap gap-2">
               <Link
-                key={item}
-                href={`/?tag=${item}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
-                data-testid={`tag-${item}`}
-                className={`rounded-full border px-3 py-1 text-xs ${
-                  tag === item
-                    ? "border-emerald-400 text-[var(--terminal-fg)]"
-                    : "border-zinc-700 text-[var(--terminal-muted)]"
-                }`}
+                href={query ? `/?q=${encodeURIComponent(query)}` : "/"}
+                data-testid="tag-all"
+                data-active={!tag}
+                className="terminal-chip"
               >
-                #{item}
+                all
               </Link>
-            ))}
+              {tags.map((item) => (
+                <Link
+                  key={item}
+                  href={`/?tag=${item}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
+                  data-testid={`tag-${item}`}
+                  data-active={tag === item}
+                  className="terminal-chip"
+                >
+                  #{item}
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2">
+        <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {cards.map((card) => (
-            <article
-              key={card.slug}
-              data-testid="card"
-              className="terminal-frame p-5"
-            >
-              <div className="flex items-center justify-between text-xs text-[var(--terminal-muted)]">
+            <article key={card.slug} data-testid="card" className="terminal-frame p-5">
+              <div className="flex items-center justify-between text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">
                 <span>{card.character}</span>
-                <span className="uppercase">{card.type}</span>
+                <span>{card.type}</span>
               </div>
-              <h2 className="mt-3 text-lg font-semibold">
+              <h2 className="mt-3 text-lg font-semibold uppercase tracking-[0.08em]">
                 <Link className="hover:text-[var(--terminal-fg)]" href={`/cards/${card.slug}`}>
                   {card.title}
                 </Link>
               </h2>
+              <div className="mt-2 h-px bg-[var(--terminal-border)]" />
               <div className="mt-4 flex flex-wrap gap-2">
                 {card.tags.map((item) => (
-                  <span
-                    key={item}
-                    className="border border-[var(--terminal-border)] px-2 py-0.5 text-[10px] text-[var(--terminal-muted)]"
-                  >
+                  <span key={item} className="terminal-chip">
                     #{item}
                   </span>
                 ))}
@@ -103,11 +137,11 @@ export default async function Home({ searchParams }: Props) {
               {card.source_url && (
                 <a
                   href={card.source_url}
-                  className="mt-4 inline-flex text-xs text-[var(--terminal-fg)]"
+                  className="mt-4 inline-flex text-xs uppercase tracking-[0.12em] text-[var(--terminal-fg)]"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  출처 보기
+                  source --open
                 </a>
               )}
             </article>
