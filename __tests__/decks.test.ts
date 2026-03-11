@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import { decks, getDeckBySlug, searchDecks } from "@/lib/decks";
 
 describe("decks library", () => {
-  it("loads deck seed", () => {
-    expect(decks.length).toBeGreaterThan(0);
+  it("loads onboarding-ready seed decks", () => {
+    expect(decks.length).toBeGreaterThanOrEqual(5);
+    expect(decks.filter((deck) => deck.featured).length).toBeGreaterThanOrEqual(3);
   });
 
   it("finds deck by slug", () => {

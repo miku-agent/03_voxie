@@ -3,14 +3,35 @@
     "slug": "classic-miku",
     "name": "Classic Miku",
     "description": "초기 대표곡 모음",
-    "tags": ["classic", "miku"],
+    "tags": ["classic", "miku", "starter"],
     "cards": ["melt", "world-is-mine", "rolling-girl"]
   },
   {
     "slug": "stage-hits",
     "name": "Stage Hits",
     "description": "라이브에서 많이 불린 곡",
-    "tags": ["iconic", "live"],
+    "tags": ["iconic", "live", "performance"],
     "cards": ["melt", "ievan-polkka", "reverse-rainbow"]
+  },
+  {
+    "slug": "niconico-explosion-2007",
+    "name": "2007 NicoNico Explosion",
+    "description": "초기 니코니코 확산기를 보여주는 입문형 덱",
+    "tags": ["2007", "niconico", "classic"],
+    "cards": ["melt", "world-is-mine", "ievan-polkka"]
+  },
+  {
+    "slug": "miku-meme-starter",
+    "name": "Miku Meme Starter",
+    "description": "밈과 대중 인지도를 중심으로 보는 스타터 덱",
+    "tags": ["meme", "starter", "iconic"],
+    "cards": ["world-is-mine", "ievan-polkka", "melt"]
+  },
+  {
+    "slug": "emotion-arc",
+    "name": "Emotion Arc",
+    "description": "감정선 변화에 집중한 스토리형 큐레이션",
+    "tags": ["emotional", "story", "classic"],
+    "cards": ["melt", "rolling-girl", "reverse-rainbow"]
   }
 ]
