@@ -14,19 +14,21 @@ import {
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 export async function createDeck(payload: DeckPayload) {
   try {
-    const slug = generateSlug(payload.name) + '-' + Date.now();
+    const slug = generateSlug(payload.name) + "-" + Date.now();
 
     if (isMockWriteModeEnabled()) {
       insertMockDeck({
         slug,
         name: payload.name,
         description: payload.description,
+        intro: payload.intro,
+        curatorNote: payload.curatorNote,
         tags: payload.tags || [],
         cards: payload.cards || [],
       });
@@ -39,14 +41,14 @@ export async function createDeck(payload: DeckPayload) {
         data: {
           slug,
           name: payload.name,
-        }
+        },
       };
     }
 
     if (!isSupabaseConfigured() || !supabase) {
       return {
         success: false,
-        error: "Supabase not configured. Deck creation is disabled in local mode."
+        error: "Supabase not configured. Deck creation is disabled in local mode.",
       };
     }
 
@@ -56,6 +58,8 @@ export async function createDeck(payload: DeckPayload) {
         slug,
         name: payload.name,
         description: payload.description,
+        intro: payload.intro,
+        curator_note: payload.curatorNote,
         tags: payload.tags || [],
       } as any)
       .select()
@@ -65,7 +69,7 @@ export async function createDeck(payload: DeckPayload) {
       console.error("Failed to create deck:", deckError);
       return {
         success: false,
-        error: "Failed to create deck: " + deckError.message
+        error: "Failed to create deck: " + deckError.message,
       };
     }
 
@@ -79,7 +83,7 @@ export async function createDeck(payload: DeckPayload) {
         console.error("Failed to fetch card IDs:", cardFetchError);
         return {
           success: false,
-          error: "Failed to fetch card information"
+          error: "Failed to fetch card information",
         };
       }
 
@@ -91,7 +95,7 @@ export async function createDeck(payload: DeckPayload) {
           card_id: cardIdMap.get(cardSlug),
           position: index,
         }))
-        .filter(item => item.card_id);
+        .filter((item) => item.card_id);
 
       if (deckCards.length > 0) {
         const { error: deckCardsError } = await supabase
@@ -102,7 +106,7 @@ export async function createDeck(payload: DeckPayload) {
           console.error("Failed to add cards to deck:", deckCardsError);
           return {
             success: false,
-            error: "Deck created but failed to add cards: " + deckCardsError.message
+            error: "Deck created but failed to add cards: " + deckCardsError.message,
           };
         }
       }
@@ -116,13 +120,13 @@ export async function createDeck(payload: DeckPayload) {
       data: {
         slug: (deck as any).slug,
         name: (deck as any).name,
-      }
+      },
     };
   } catch (error) {
     console.error("Unexpected error creating deck:", error);
     return {
       success: false,
-      error: "An unexpected error occurred"
+      error: "An unexpected error occurred",
     };
   }
 }
@@ -135,6 +139,8 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
       const updated = updateMockDeck(deckSlug, {
         name: payload.name,
         description: payload.description,
+        intro: payload.intro,
+        curatorNote: payload.curatorNote,
         tags: payload.tags || [],
         cards: payload.cards || [],
       });
@@ -142,7 +148,7 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
       if (!updated) {
         return {
           success: false,
-          error: "Deck not found"
+          error: "Deck not found",
         };
       }
 
@@ -155,14 +161,14 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
         data: {
           slug: deckSlug,
           name: updated.name,
-        }
+        },
       };
     }
 
     if (!isSupabaseConfigured() || !supabase) {
       return {
         success: false,
-        error: "Supabase not configured. Deck editing is disabled in local mode."
+        error: "Supabase not configured. Deck editing is disabled in local mode.",
       };
     }
 
@@ -176,7 +182,7 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
       console.error("Failed to find deck:", fetchError);
       return {
         success: false,
-        error: "Deck not found"
+        error: "Deck not found",
       };
     }
 
@@ -185,6 +191,8 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
       .update({
         name: payload.name,
         description: payload.description,
+        intro: payload.intro,
+        curator_note: payload.curatorNote,
         tags: payload.tags || [],
         updated_at: new Date().toISOString(),
       })
@@ -194,7 +202,7 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
       console.error("Failed to update deck:", updateError);
       return {
         success: false,
-        error: "Failed to update deck: " + updateError.message
+        error: "Failed to update deck: " + updateError.message,
       };
     }
 
@@ -207,7 +215,7 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
       console.error("Failed to remove old deck cards:", deleteError);
       return {
         success: false,
-        error: "Failed to update deck cards"
+        error: "Failed to update deck cards",
       };
     }
 
@@ -221,7 +229,7 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
         console.error("Failed to fetch card IDs:", cardFetchError);
         return {
           success: false,
-          error: "Failed to fetch card information"
+          error: "Failed to fetch card information",
         };
       }
 
@@ -233,7 +241,7 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
           card_id: cardIdMap.get(cardSlug),
           position: index,
         }))
-        .filter(item => item.card_id);
+        .filter((item) => item.card_id);
 
       if (deckCards.length > 0) {
         const { error: insertError } = await supabase
@@ -244,7 +252,7 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
           console.error("Failed to add new deck cards:", insertError);
           return {
             success: false,
-            error: "Deck updated but failed to add cards"
+            error: "Deck updated but failed to add cards",
           };
         }
       }
@@ -259,13 +267,13 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
       data: {
         slug: deckSlug,
         name: payload.name,
-      }
+      },
     };
   } catch (error) {
     console.error("Unexpected error updating deck:", error);
     return {
       success: false,
-      error: "An unexpected error occurred"
+      error: "An unexpected error occurred",
     };
   }
 }

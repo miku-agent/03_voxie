@@ -68,11 +68,11 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
               <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--terminal-soft)]">
                 {deck.shortPitch ?? deck.description ?? "이 덱은 관련 카드들을 하나의 흐름으로 읽기 위한 큐레이션 단위예요."}
               </p>
-              {deck.introTitle && (
+              {(deck.introTitle || deck.introBody || deck.intro) && (
                 <div className="mt-5 border border-[var(--terminal-border)] bg-[rgba(57,197,187,0.04)] px-4 py-4 sm:px-5">
                   <p className="text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">deck intro</p>
-                  <h2 className="mt-2 text-xl font-semibold">{deck.introTitle}</h2>
-                  {deck.introBody && <p className="mt-3 text-sm leading-7 text-[var(--terminal-soft)]">{deck.introBody}</p>}
+                  <h2 className="mt-2 text-xl font-semibold">{deck.introTitle ?? "이 덱을 읽는 방법"}</h2>
+                  {(deck.intro ?? deck.introBody) && <p className="mt-3 text-sm leading-7 text-[var(--terminal-soft)]">{deck.intro ?? deck.introBody}</p>}
                 </div>
               )}
               <div className="mt-4 flex flex-wrap gap-2">

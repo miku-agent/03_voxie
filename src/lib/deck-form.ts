@@ -3,6 +3,8 @@ export type DeckFormInput = {
   tags: string;
   cards: string[];
   description?: string;
+  intro?: string;
+  curatorNote?: string;
 };
 
 export type DeckPayload = {
@@ -10,6 +12,8 @@ export type DeckPayload = {
   tags: string[];
   cards: string[];
   description?: string;
+  intro?: string;
+  curatorNote?: string;
 };
 
 export const parseDeckTags = (value: string) =>
@@ -23,6 +27,8 @@ export const buildDeckPayload = (input: DeckFormInput): DeckPayload => ({
   tags: parseDeckTags(input.tags),
   cards: input.cards,
   description: input.description?.trim() || undefined,
+  intro: input.intro?.trim() || undefined,
+  curatorNote: input.curatorNote?.trim() || undefined,
 });
 
 export const validateDeckPayload = (payload: DeckPayload) => {

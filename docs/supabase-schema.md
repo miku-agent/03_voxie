@@ -34,6 +34,8 @@ Stores deck collections.
 | slug | text | UNIQUE, NOT NULL | URL-friendly identifier |
 | name | text | NOT NULL | Deck name |
 | description | text | | Optional description |
+| intro | text | | Optional deck intro / summary |
+| curator_note | text | | Optional curator note |
 | tags | text[] | DEFAULT '{}' | Array of tags |
 | created_at | timestamptz | DEFAULT NOW() | Creation timestamp |
 | updated_at | timestamptz | DEFAULT NOW() | Last update timestamp |
