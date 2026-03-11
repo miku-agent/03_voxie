@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ShareDeckActions from "./ShareDeckActions";
-import { getCardBySlugAsync, type Card } from "@/lib/cards";
+import { getCardBySlugAsync, listCards, type Card } from "@/lib/cards";
 import { getDeckShareDescription, getDeckShareUrl } from "@/lib/deck-share";
-import { getDeckBySlugAsync } from "@/lib/decks";
+import { getDeckBySlugAsync, listDecks } from "@/lib/decks";
 import { getProfileHref } from "@/lib/profiles";
+import { getRelatedCards, getRelatedDecks } from "@/lib/related";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -69,6 +70,10 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
   const cards = (await Promise.all(deck.cards.map((cardSlug) => getCardBySlugAsync(cardSlug)))).filter(
     (card): card is Card => Boolean(card),
   );
+  const allDecks = await listDecks();
+  const allCards = await listCards();
+  const relatedDecks = getRelatedDecks(deck, allDecks);
+  const relatedCards = cards.length > 0 ? getRelatedCards(cards[0], allCards) : [];
 
   return (
     <div className="min-h-screen text-white">
@@ -223,7 +228,61 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
             </div>
           </article>
 
-          <aside className="terminal-frame p-5">
+          <aside className="space-y-6">
+            <div className="terminal-frame p-5">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-lg font-semibold">관련 덱</h2>
+                <Link href="/decks" className="text-sm text-[var(--terminal-soft)]">
+                  덱 탐색 →
+                </Link>
+              </div>
+              <div className="mt-4 space-y-3">
+                {relatedDecks.length > 0 ? (
+                  relatedDecks.map((item) => (
+                    <Link key={item.slug} href={`/decks/${item.slug}`} className="block border border-[var(--terminal-border)] px-4 py-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold">{item.name}</p>
+                        <span className="text-xs text-[var(--terminal-muted)]">{item.cards.length} cards</span>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-[var(--terminal-muted)]">{item.shortPitch ?? item.description}</p>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="border border-[var(--terminal-border)] px-4 py-4 text-sm text-[var(--terminal-muted)]">
+                    아직 이 덱과 가까운 다른 덱 추천이 없어요.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="terminal-frame p-5">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-lg font-semibold">관련 카드</h2>
+                <Link href="/" className="text-sm text-[var(--terminal-soft)]">
+                  카드 탐색 →
+                </Link>
+              </div>
+              <div className="mt-4 space-y-3">
+                {relatedCards.length > 0 ? (
+                  relatedCards.map((item) => (
+                    <Link key={item.slug} href={`/cards/${item.slug}`} className="block border border-[var(--terminal-border)] px-4 py-4">
+                      <div className="flex items-center justify-between gap-3 text-xs text-[var(--terminal-muted)]">
+                        <span>{item.character}</span>
+                        <span className="uppercase">{item.type}</span>
+                      </div>
+                      <p className="mt-2 text-sm font-semibold">{item.title}</p>
+                      <p className="mt-2 text-sm leading-6 text-[var(--terminal-muted)]">{item.summary ?? item.whyItMatters ?? "가까운 맥락의 카드"}</p>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="border border-[var(--terminal-border)] px-4 py-4 text-sm text-[var(--terminal-muted)]">
+                    아직 이 덱에서 바로 이어 볼 카드 추천이 없어요.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="terminal-frame p-5">
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-lg font-semibold">story map</h2>
               <Link href="/decks/new" className="text-sm text-[var(--terminal-soft)]">
@@ -249,6 +308,7 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
                 );
               })}
             </div>
+          </div>
           </aside>
         </section>
 

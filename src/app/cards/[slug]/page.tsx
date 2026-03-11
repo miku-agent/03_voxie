@@ -5,8 +5,10 @@ import {
   getCardMediaMeta,
   getYouTubeEmbedUrl,
 } from "@/lib/cards";
+import { listCards } from "@/lib/cards";
 import { listDecks } from "@/lib/decks";
 import { getProfileHref } from "@/lib/profiles";
+import { getRelatedCards, getRelatedDecks } from "@/lib/related";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -35,7 +37,20 @@ export default async function CardDetail({ params }: Props) {
   const embedUrl = getYouTubeEmbedUrl(card.youtube_url);
   const media = getCardMediaMeta(card);
   const decks = await listDecks();
+  const allCards = await listCards();
   const relatedDecks = decks.filter((deck) => deck.cards.includes(card.slug));
+  const suggestedDecks = getRelatedDecks(
+    {
+      slug: `card-${card.slug}`,
+      name: card.title,
+      tags: card.tags,
+      cards: relatedDecks.flatMap((deck) => deck.cards),
+      authorHandle: card.authorHandle,
+      authorName: card.authorName,
+    },
+    decks.filter((deck) => !deck.cards.includes(card.slug)),
+  );
+  const relatedCards = getRelatedCards(card, allCards);
 
   return (
     <div className="min-h-screen text-white">
@@ -294,6 +309,59 @@ export default async function CardDetail({ params }: Props) {
                 ) : (
                   <div className="border border-[var(--terminal-border)] px-4 py-4 text-sm text-[var(--terminal-muted)]">
                     아직 이 카드를 담은 덱이 없어요. 덱을 새로 만들어 이 카드를 중심으로 묶을 수 있어요.
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className="terminal-frame p-5">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-lg font-semibold">관련 카드</h2>
+                <Link href="/" className="text-sm text-[var(--terminal-soft)]">
+                  카드 탐색 →
+                </Link>
+              </div>
+              <div className="mt-4 space-y-3">
+                {relatedCards.length > 0 ? (
+                  relatedCards.map((item) => (
+                    <Link key={item.slug} href={`/cards/${item.slug}`} className="block border border-[var(--terminal-border)] px-4 py-4">
+                      <div className="flex items-center justify-between gap-3 text-xs text-[var(--terminal-muted)]">
+                        <span>{item.character}</span>
+                        <span className="uppercase">{item.type}</span>
+                      </div>
+                      <p className="mt-2 text-sm font-semibold">{item.title}</p>
+                      <p className="mt-2 text-sm leading-6 text-[var(--terminal-muted)]">{item.summary ?? item.whyItMatters ?? "가까운 맥락의 카드"}</p>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="border border-[var(--terminal-border)] px-4 py-4 text-sm text-[var(--terminal-muted)]">
+                    아직 바로 이어 볼 만한 카드 추천이 없어요.
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className="terminal-frame p-5">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-lg font-semibold">관련 덱</h2>
+                <Link href="/decks" className="text-sm text-[var(--terminal-soft)]">
+                  덱 탐색 →
+                </Link>
+              </div>
+              <div className="mt-4 space-y-3">
+                {suggestedDecks.length > 0 ? (
+                  suggestedDecks.map((deck) => (
+                    <Link key={deck.slug} href={`/decks/${deck.slug}`} className="block border border-[var(--terminal-border)] px-4 py-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold">{deck.name}</p>
+                        <span className="text-xs text-[var(--terminal-muted)]">{deck.cards.length} cards</span>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-[var(--terminal-muted)]">{deck.shortPitch ?? deck.description}</p>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="border border-[var(--terminal-border)] px-4 py-4 text-sm text-[var(--terminal-muted)]">
+                    아직 이 카드와 가까운 다른 덱 추천이 없어요.
                   </div>
                 )}
               </div>
