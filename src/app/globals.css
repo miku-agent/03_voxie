@@ -175,3 +175,12 @@ select:focus {
   font-size: 0.75rem;
   color: var(--terminal-muted);
 }
+
+.terminal-notice {
+  border: 1px solid var(--terminal-border-strong);
+  background: rgba(57, 197, 187, 0.08);
+  color: var(--terminal-soft);
+  padding: 0.9rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}

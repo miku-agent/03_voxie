@@ -53,7 +53,7 @@ export default function CardCreatePage() {
         const result = await createCard(payload);
 
         if (result.success) {
-          router.push("/");
+          router.push("/?created=card");
         } else {
           setSubmitError(result.error || "Failed to create card");
         }

@@ -4,10 +4,13 @@ import { getCardBySlugAsync } from "@/lib/cards";
 
 type Props = {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ created?: string }>;
 };
 
-export default async function DeckDetailPage({ params }: Props) {
+export default async function DeckDetailPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const created = resolvedSearchParams.created;
   const deck = await getDeckBySlugAsync(slug);
 
   if (!deck) {
@@ -44,6 +47,12 @@ export default async function DeckDetailPage({ params }: Props) {
               </Link>
             </div>
           </div>
+
+          {created === "deck" && (
+            <div className="terminal-notice mt-5">
+              덱이 저장됐어요. 이제 카드 구성을 확인하거나 바로 수정해서 큐레이션을 더 다듬을 수 있어요.
+            </div>
+          )}
 
           <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_260px] md:gap-6">
             <div>

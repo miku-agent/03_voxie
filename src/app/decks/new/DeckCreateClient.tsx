@@ -81,7 +81,7 @@ export default function DeckCreateClient({ cards }: Props) {
         const result = await createDeck(payload);
 
         if (result.success && result.data) {
-          router.push(`/decks/${result.data.slug}`);
+          router.push(`/decks/${result.data.slug}?created=deck`);
         } else {
           setSubmitError(result.error || "Failed to create deck");
         }
