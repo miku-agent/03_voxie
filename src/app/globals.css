@@ -1,13 +1,4 @@
 @import "tailwindcss";
-@import url("https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css");
-
-@font-face {
-  font-family: "Galmuri11";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/Galmuri11-Bold.woff2")
-    format("woff2");
-  font-weight: 700;
-  font-display: swap;
-}
 
 :root {
   --terminal-bg: #050816;
@@ -23,7 +14,6 @@
   --terminal-border-strong: rgba(126, 252, 242, 0.58);
   --terminal-glow: rgba(57, 197, 187, 0.18);
   --terminal-shadow: rgba(8, 230, 219, 0.08);
-  --font-terminal: "Galmuri11";
 }
 
 @theme inline {
