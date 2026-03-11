@@ -102,10 +102,11 @@ Supabase 환경 변수가 없어도 앱의 읽기 흐름이 유지된다.
 
 ### 현재 판단
 - **읽기 경로**: Supabase 우선 + fallback 지원
-- **쓰기 경로**: Supabase 전용
+- **쓰기 경로**: 운영 모드에서는 Supabase, Playwright 테스트에서는 mock persistence 지원
 - **상세/목록 페이지**: async read path 사용 중
 - **덱 생성/수정 페이지**: server fetch + client form 패턴으로 정리됨
 - **일부 helper / fallback 로직**: seed 데이터를 여전히 기준값으로 사용
+- **성공 저장 E2E**: 실제 Supabase 대신 mock-backed write-through store로 안정적으로 검증 가능
 
 ---
 
@@ -129,9 +130,9 @@ Supabase 환경 변수가 없어도 앱의 읽기 흐름이 유지된다.
 ### 아직 남은 정리 포인트
 - [ ] `/cards/new`를 포함한 create UI 구조 정렬 여부 결정
 - [ ] 생성/수정 흐름 사용자 경험 개선 (성공/실패/empty state)
-- [ ] fallback 모드와 Supabase 모드 차이를 더 분명히 테스트
 - [ ] 완전 Supabase 모드에서 실배포 저장 동작 검증
 - [ ] seed 의존 helper를 어디까지 유지할지 기준 확정
+- [ ] Playwright mock persistence를 테스트 전용 경계로 얼마나 공식화할지 결정
 
 ---
 
@@ -151,6 +152,12 @@ Supabase 환경 변수가 없어도 앱의 읽기 흐름이 유지된다.
 #### E2E
 - 홈 화면 카드 노출 및 태그 필터 테스트
 - 카드 상세 페이지 렌더 테스트
+- 카드 생성 validation 테스트
+- 덱 생성 validation 테스트
+- 덱 수정 초기값 노출 테스트
+- 카드 생성 성공 후 홈 반영 테스트 (mock persistence)
+- 덱 생성 성공 후 상세 반영 테스트 (mock persistence)
+- 덱 수정 성공 후 상세 반영 테스트 (mock persistence)
 
 ### 테스트 원칙
 - 새로운 기능은 가능하면 **테스트 먼저 작성**한다.
@@ -158,7 +165,7 @@ Supabase 환경 변수가 없어도 앱의 읽기 흐름이 유지된다.
 - 서버 액션이 늘어날수록 성공/실패 케이스를 같이 검증한다.
 
 ### 다음 보강 후보
-- [ ] 생성/수정 페이지 사용자 흐름 테스트
+- [ ] 실 Supabase 환경 기준 성공 저장 E2E 또는 smoke test
 - [ ] Supabase 설정 유무에 따른 UI 차이 테스트
 - [ ] 서버 액션 에러 메시지 UX 테스트
 
@@ -259,4 +266,7 @@ README와 실제 구현 상태가 완전히 동일하지 않을 수 있다.
 - 2026-03-11: 덱 수정 페이지를 async 데이터 소스 기반으로 리팩터
 - 2026-03-11: 카드/덱 write action 테스트 추가
 - 2026-03-11: 덱 생성 페이지를 async 데이터 로딩 구조로 리팩터
+- 2026-03-11: write failure E2E 추가
+- 2026-03-11: Playwright 전용 mock persistence 도입
+- 2026-03-11: 카드 생성 / 덱 생성 / 덱 수정 success E2E 추가
 - 2026-03-11: AGENTS.md를 현재 상태 기준 운영 문서로 재정리

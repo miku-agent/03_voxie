@@ -138,6 +138,9 @@ Supabase가 설정되지 않은 환경에서도 읽기 화면이 동작하도록
 ### Playwright
 - 홈 화면 렌더 / 태그 필터
 - 카드 상세 페이지 렌더
+- 카드/덱 생성 validation
+- 덱 수정 초기값 노출
+- 카드 생성 / 덱 생성 / 덱 수정 success flow (mock persistence)
 
 ---
 
