@@ -10,6 +10,11 @@ export default function DeckListPage() {
           <p className="mt-2 text-sm text-zinc-400">
             카드로 묶은 플레이리스트
           </p>
+          <div className="mt-4">
+            <Link className="text-emerald-300" href="/decks/new">
+              덱 생성 →
+            </Link>
+          </div>
         </header>
 
         <section className="grid gap-4 md:grid-cols-2">
