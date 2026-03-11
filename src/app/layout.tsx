@@ -1,11 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const jetbrainsMono = JetBrains_Mono({
+const galmuri = localFont({
+  src: [
+    {
+      path: "../../public/fonts/Galmuri11.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Galmuri11-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
   variable: "--font-terminal",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -20,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={`${jetbrainsMono.variable} antialiased`}>
+      <body className={`${galmuri.variable} antialiased`}>
         <div className="site-shell">
           <header className="border-b border-[var(--terminal-border)] bg-[rgba(5,8,22,0.88)] backdrop-blur-sm">
             <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">

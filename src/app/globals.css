@@ -54,17 +54,20 @@ a:hover {
 
 input,
 textarea,
-button {
+button,
+select {
   font: inherit;
 }
 
 input,
-textarea {
+textarea,
+select {
   outline: none;
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   border-color: var(--terminal-border-strong);
   box-shadow: 0 0 0 1px var(--terminal-border-strong), 0 0 14px var(--terminal-shadow);
 }
@@ -111,7 +114,7 @@ textarea:focus {
   background: rgba(57, 197, 187, 0.08);
   padding: 0.7rem 1rem;
   font-size: 0.875rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .terminal-button:hover {
@@ -123,7 +126,7 @@ textarea:focus {
   padding: 0.35rem 0.7rem;
   font-size: 0.75rem;
   color: var(--terminal-muted);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   background: rgba(57, 197, 187, 0.04);
 }
 
@@ -141,4 +144,12 @@ textarea:focus {
 .nav-link:hover {
   border-color: var(--terminal-border);
   background: rgba(57, 197, 187, 0.05);
+}
+
+.dense-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--terminal-muted);
 }

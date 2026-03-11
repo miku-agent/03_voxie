@@ -113,10 +113,10 @@ export default async function Home({ searchParams }: Props) {
                     <span>{deck.name}</span>
                     <span>{deck.cards.length} cards</span>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-[var(--terminal-soft)]">
+                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--terminal-soft)]">
                     {deck.shortPitch ?? deck.description}
                   </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-3 flex flex-wrap gap-2">
                     {deck.tags.slice(0, 3).map((item) => (
                       <span key={item} className="terminal-chip">
                         #{item}
@@ -142,7 +142,7 @@ export default async function Home({ searchParams }: Props) {
             </Link>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {cards.length === 0 ? (
               <article className="terminal-shell px-6 py-10 md:col-span-2 xl:col-span-3">
                 <h2 className="text-xl font-semibold">검색 결과가 없어요</h2>
@@ -157,23 +157,33 @@ export default async function Home({ searchParams }: Props) {
               </article>
             ) : (
               cards.map((card) => (
-                <article key={card.slug} data-testid="card" className="terminal-frame p-5">
-                  <div className="flex items-center justify-between text-xs text-[var(--terminal-muted)]">
-                    <span>{card.character}</span>
-                    <span>{card.type}</span>
+                <article key={card.slug} data-testid="card" className="terminal-frame p-4">
+                  <div className="flex items-start justify-between gap-4 text-xs text-[var(--terminal-muted)]">
+                    <span className="truncate">{card.character}</span>
+                    <span className="shrink-0 uppercase">{card.type}</span>
                   </div>
-                  <h3 className="mt-3 text-lg font-semibold">
-                    <Link href={`/cards/${card.slug}`}>{card.title}</Link>
-                  </h3>
-                  {card.summary && (
-                    <p className="mt-2 text-sm leading-6 text-[var(--terminal-soft)]">{card.summary}</p>
-                  )}
-                  <div className="mt-3 flex flex-wrap gap-3 text-xs text-[var(--terminal-muted)]">
+                  <div className="mt-3 flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-base font-semibold sm:text-lg">
+                        <Link href={`/cards/${card.slug}`}>{card.title}</Link>
+                      </h3>
+                      {card.summary && (
+                        <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--terminal-soft)]">
+                          {card.summary}
+                        </p>
+                      )}
+                    </div>
+                    <Link href={`/cards/${card.slug}`} className="shrink-0 text-sm text-[var(--terminal-soft)]">
+                      보기 →
+                    </Link>
+                  </div>
+                  <div className="dense-meta mt-3">
                     {card.producer && <span>{card.producer}</span>}
                     {card.year && <span>{card.year}</span>}
+                    <span>{card.tags.length} tags</span>
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {card.tags.map((item) => (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {card.tags.slice(0, 4).map((item) => (
                       <span key={item} className="terminal-chip">
                         #{item}
                       </span>

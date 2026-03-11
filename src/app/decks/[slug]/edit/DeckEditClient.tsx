@@ -26,6 +26,7 @@ export default function DeckEditClient({ deck, cards }: Props) {
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [cardQuery, setCardQuery] = useState("");
 
   const sortedCards = useMemo(
     () => [...cards].sort((a, b) => a.title.localeCompare(b.title)),
@@ -39,6 +40,19 @@ export default function DeckEditClient({ deck, cards }: Props) {
       ),
     [cards]
   );
+
+  const filteredCards = useMemo(() => {
+    const query = cardQuery.trim().toLowerCase();
+    if (!query) return sortedCards;
+
+    return sortedCards.filter((card) => {
+      const haystack = [card.title, card.character, card.producer, ...card.tags]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [cardQuery, sortedCards]);
 
   const toggleCard = (slug: string) => {
     setSelectedCards((prev) =>
@@ -81,33 +95,27 @@ export default function DeckEditClient({ deck, cards }: Props) {
 
   return (
     <div className="min-h-screen text-white">
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-        <header className="terminal-shell overflow-hidden">
-          <div className="terminal-titlebar">
-            <span>edit://deck/{deck.slug}</span>
-            <span>edit mode</span>
-          </div>
-          <div className="grid gap-6 px-5 py-6 sm:px-8 sm:py-8 md:grid-cols-[minmax(0,1fr)_260px]">
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+        <header className="terminal-shell p-5 sm:p-6">
+          <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_280px]">
             <div>
-              <Link className="text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)] hover:text-[var(--terminal-fg)]" href={`/decks/${deck.slug}`}>
-                ← return --detail
+              <Link className="text-sm text-[var(--terminal-muted)]" href={`/decks/${deck.slug}`}>
+                ← 덱 상세
               </Link>
-              <h1 className="mt-4 text-3xl font-semibold uppercase tracking-[0.12em]">
-                덱 편집
-              </h1>
+              <h1 className="mt-4 text-3xl font-semibold">덱 수정</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--terminal-muted)]">
-                변경사항을 저장하면 덱 상세 페이지로 돌아가요. 태그 토글과 카드 선택 UI도
-                같은 미쿠 콘솔 언어로 정리했어요.
+                이름, 설명, 태그, 포함 카드를 수정할 수 있어요. 저장하면 덱 상세 화면으로 돌아갑니다.
               </p>
             </div>
             <aside className="terminal-frame p-4">
-              <div className="space-y-3 text-sm">
+              <p className="text-sm font-semibold">현재 상태</p>
+              <div className="mt-3 space-y-3 text-sm">
                 <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
-                  <span className="text-[var(--terminal-muted)]">selected</span>
-                  <span>{selectedCards.length} cards</span>
+                  <span className="text-[var(--terminal-muted)]">선택 카드</span>
+                  <span>{selectedCards.length}</span>
                 </div>
                 <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
-                  <span className="text-[var(--terminal-muted)]">tags</span>
+                  <span className="text-[var(--terminal-muted)]">태그</span>
                   <span>{tags.length}</span>
                 </div>
               </div>
@@ -115,94 +123,140 @@ export default function DeckEditClient({ deck, cards }: Props) {
           </div>
         </header>
 
-        <form onSubmit={onSubmit} className="mt-8 terminal-frame space-y-6 p-5 sm:p-6">
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">덱 이름</label>
-            <input
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
-            />
-            {errors.includes("name") && (
-              <p className="text-xs text-[var(--terminal-error)]">덱 이름을 입력해줘.</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">설명</label>
-            <textarea
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              className="min-h-[120px] w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
-            />
-          </div>
-
-          <div className="space-y-3">
-            <label className="text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">태그</label>
-            <div className="flex flex-wrap gap-2">
-              {availableTags.map((tag) => {
-                const active = tags.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() =>
-                      setTags((prev) =>
-                        active ? prev.filter((item) => item !== tag) : [...prev, tag]
-                      )
-                    }
-                    data-active={active}
-                    className="terminal-chip"
-                  >
-                    #{tag}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">카드 선택</label>
-              <span className="text-xs text-[var(--terminal-muted)]">{selectedCards.length}개 선택</span>
-            </div>
-            <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-              {sortedCards.map((card) => (
-                <label
-                  key={card.slug}
-                  className="flex items-center gap-3 border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm"
-                >
+        <form onSubmit={onSubmit} className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="terminal-frame space-y-6 p-5 sm:p-6">
+            <section>
+              <h2 className="text-lg font-semibold">기본 정보</h2>
+              <div className="mt-4 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-[var(--terminal-soft)]">덱 이름</label>
                   <input
-                    type="checkbox"
-                    checked={selectedCards.includes(card.slug)}
-                    onChange={() => toggleCard(card.slug)}
-                    className="h-4 w-4 accent-[var(--terminal-accent)]"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
                   />
-                  <span className="truncate">{card.title}</span>
-                </label>
-              ))}
+                  {errors.includes("name") && (
+                    <p className="text-xs text-[var(--terminal-error)]">덱 이름을 입력해줘.</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-[var(--terminal-soft)]">설명</label>
+                  <textarea
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    className="min-h-[120px] w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-semibold">태그</h2>
+              <p className="mt-1 text-sm text-[var(--terminal-muted)]">관련 태그를 눌러서 덱 맥락을 정리해 주세요.</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {availableTags.map((tag) => {
+                  const active = tags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() =>
+                        setTags((prev) =>
+                          active ? prev.filter((item) => item !== tag) : [...prev, tag]
+                        )
+                      }
+                      data-active={active}
+                      className="terminal-chip"
+                    >
+                      #{tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-semibold">카드 선택</h2>
+                  <p className="mt-1 text-sm text-[var(--terminal-muted)]">포함할 카드를 검색하고 조정할 수 있어요.</p>
+                </div>
+                <span className="text-sm text-[var(--terminal-soft)]">{selectedCards.length}개 선택</span>
+              </div>
+
+              <div className="mt-4 space-y-4">
+                <input
+                  value={cardQuery}
+                  onChange={(event) => setCardQuery(event.target.value)}
+                  className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
+                  placeholder="카드 제목, 캐릭터, 태그 검색"
+                />
+
+                <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+                  {filteredCards.map((card) => (
+                    <label
+                      key={card.slug}
+                      className="flex items-start gap-3 border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedCards.includes(card.slug)}
+                        onChange={() => toggleCard(card.slug)}
+                        className="mt-0.5 h-4 w-4 accent-[var(--terminal-accent)]"
+                      />
+                      <span className="min-w-0">
+                        <span className="block truncate text-[var(--terminal-fg)]">{card.title}</span>
+                        <span className="mt-1 block text-xs text-[var(--terminal-muted)]">
+                          {card.character}
+                          {card.producer ? ` · ${card.producer}` : ""}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {filteredCards.length === 0 && (
+                  <p className="text-sm text-[var(--terminal-muted)]">검색 결과에 맞는 카드가 없어요.</p>
+                )}
+                {errors.includes("cards") && (
+                  <p className="text-xs text-[var(--terminal-error)]">카드를 최소 1개 선택해줘.</p>
+                )}
+              </div>
+            </section>
+
+            <div className="flex flex-wrap items-center gap-3 border-t border-[var(--terminal-border)] pt-6">
+              <button
+                type="submit"
+                className="terminal-button disabled:opacity-50"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "저장 중..." : "변경사항 저장"}
+              </button>
+              <Link className="terminal-button" href={`/decks/${deck.slug}`}>
+                취소
+              </Link>
             </div>
-            {errors.includes("cards") && (
-              <p className="text-xs text-[var(--terminal-error)]">카드를 최소 1개 선택해줘.</p>
-            )}
+
+            {submitError && <p className="text-xs text-[var(--terminal-error)]">{submitError}</p>}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="submit"
-              className="terminal-button disabled:opacity-50"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "[ 저장 중... ]" : "[ 변경사항 저장 ]"}
-            </button>
-            <Link className="terminal-button" href={`/decks/${deck.slug}`}>
-              [ 취소 ]
-            </Link>
-          </div>
-
-          {submitError && (
-            <p className="text-xs text-[var(--terminal-error)]">{submitError}</p>
-          )}
+          <aside className="terminal-frame p-5">
+            <h2 className="text-lg font-semibold">변경 요약</h2>
+            <div className="mt-4 space-y-3 text-sm">
+              <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                <span className="text-[var(--terminal-muted)]">이름</span>
+                <span>{name ? "입력됨" : "비어 있음"}</span>
+              </div>
+              <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                <span className="text-[var(--terminal-muted)]">선택 카드</span>
+                <span>{selectedCards.length}</span>
+              </div>
+              <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                <span className="text-[var(--terminal-muted)]">검색 결과</span>
+                <span>{filteredCards.length}</span>
+              </div>
+            </div>
+          </aside>
         </form>
       </main>
     </div>
