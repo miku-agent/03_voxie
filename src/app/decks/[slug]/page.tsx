@@ -76,7 +76,7 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
   const allCards = await listCards();
   const relatedDecks = getRelatedDecks(deck, allDecks);
   const relatedCards = cards.length > 0 ? getRelatedCards(cards[0], allCards) : [];
-  const social = getDeckSocialMeta(deck.slug);
+  const social = await getDeckSocialMeta(deck.slug);
   const profileSocial = deck.authorHandle ? getProfileSocialMeta(deck.authorHandle) : { followers: 0 };
 
   return (
@@ -203,10 +203,14 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
           <div className="space-y-6">
             <ShareDeckActions title={deck.name} url={shareUrl} />
             <SocialActions
+              slug={deck.slug}
               initialLikes={social.likes}
               initialBookmarks={social.bookmarks}
+              initiallyLiked={social.viewerHasLiked}
+              initiallyBookmarked={social.viewerHasBookmarked}
               curatorName={deck.authorName}
               initialFollowers={profileSocial.followers}
+              requiresAuth={social.requiresAuth}
             />
           </div>
         </section>

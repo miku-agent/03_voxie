@@ -117,6 +117,46 @@ export interface Database {
           created_at?: string
         }
       }
+      deck_likes: {
+        Row: {
+          id: string
+          deck_id: string
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          deck_id: string
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          deck_id?: string
+          user_id?: string
+          created_at?: string
+        }
+      }
+      deck_bookmarks: {
+        Row: {
+          id: string
+          deck_id: string
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          deck_id: string
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          deck_id?: string
+          user_id?: string
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
