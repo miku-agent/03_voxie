@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 import { DeckPayload } from "@/lib/deck-form";
 import { buildDeckUpdatePayload } from "@/lib/deck-edit";
+import { requireCurrentAuthoredProfile } from "@/lib/authored-content";
 import {
   insertMockDeck,
   isMockWriteModeEnabled,
@@ -21,6 +22,14 @@ function generateSlug(name: string): string {
 export async function createDeck(payload: DeckPayload) {
   try {
     const slug = generateSlug(payload.name) + "-" + Date.now();
+    const authored = await requireCurrentAuthoredProfile();
+
+    if ("error" in authored) {
+      return {
+        success: false,
+        error: authored.error,
+      };
+    }
 
     if (isMockWriteModeEnabled()) {
       insertMockDeck({
@@ -31,6 +40,9 @@ export async function createDeck(payload: DeckPayload) {
         curatorNote: payload.curatorNote,
         tags: payload.tags || [],
         cards: payload.cards || [],
+        ownerUserId: authored.identity.userId,
+        authorHandle: authored.identity.handle,
+        authorName: authored.identity.name,
       });
 
       revalidatePath("/decks");
@@ -60,6 +72,9 @@ export async function createDeck(payload: DeckPayload) {
         description: payload.description,
         intro: payload.intro,
         curator_note: payload.curatorNote,
+        owner_user_id: authored.identity.userId,
+        author_handle: authored.identity.handle,
+        author_name: authored.identity.name,
         tags: payload.tags || [],
       } as any)
       .select()

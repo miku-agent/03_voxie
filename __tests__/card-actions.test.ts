@@ -17,6 +17,13 @@ describe("card actions", () => {
       isSupabaseConfigured: () => false,
       supabase: null,
     }));
+    vi.doMock("@/lib/authored-content", () => ({
+      requireCurrentAuthoredProfile: () =>
+        Promise.resolve({
+          user: { id: "user-1" },
+          identity: { userId: "user-1", handle: "bini59", name: "빈이" },
+        }),
+    }));
 
     const { createCard } = await import("@/lib/actions/cards");
 
@@ -50,6 +57,13 @@ describe("card actions", () => {
       isSupabaseConfigured: () => true,
       supabase: { from },
     }));
+    vi.doMock("@/lib/authored-content", () => ({
+      requireCurrentAuthoredProfile: () =>
+        Promise.resolve({
+          user: { id: "user-1" },
+          identity: { userId: "user-1", handle: "bini59", name: "빈이" },
+        }),
+    }));
 
     const { createCard } = await import("@/lib/actions/cards");
 
@@ -71,6 +85,9 @@ describe("card actions", () => {
       tags: ["classic", "romance"],
       source_url: "https://example.com",
       youtube_url: "https://www.youtube.com/watch?v=o1jAMSQyVPc",
+      owner_user_id: "user-1",
+      author_handle: "bini59",
+      author_name: "빈이",
     });
     expect(result).toEqual({
       success: true,
@@ -95,6 +112,13 @@ describe("card actions", () => {
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => true,
       supabase: { from },
+    }));
+    vi.doMock("@/lib/authored-content", () => ({
+      requireCurrentAuthoredProfile: () =>
+        Promise.resolve({
+          user: { id: "user-1" },
+          identity: { userId: "user-1", handle: "bini59", name: "빈이" },
+        }),
     }));
 
     const { createCard } = await import("@/lib/actions/cards");

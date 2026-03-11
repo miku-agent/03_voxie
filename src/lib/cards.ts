@@ -18,6 +18,7 @@ export type Card = {
   era?: string;
   mood?: string[];
   whyItMatters?: string;
+  ownerUserId?: string;
   authorHandle?: string;
   authorName?: string;
 };
@@ -50,6 +51,9 @@ const enrichCard = (card: {
   tags: string[];
   source_url?: string;
   youtube_url?: string;
+  ownerUserId?: string;
+  authorHandle?: string;
+  authorName?: string;
 }): Card => ({
   ...card,
   ...cardDetails[card.slug],
@@ -63,6 +67,9 @@ type SupabaseCardRow = {
   tags: string[] | null;
   source_url: string | null;
   youtube_url: string | null;
+  owner_user_id: string | null;
+  author_handle: string | null;
+  author_name: string | null;
 };
 
 const normalizeCard = (card: SupabaseCardRow): Card =>
@@ -74,6 +81,9 @@ const normalizeCard = (card: SupabaseCardRow): Card =>
     tags: card.tags ?? [],
     source_url: card.source_url ?? undefined,
     youtube_url: card.youtube_url ?? undefined,
+    ownerUserId: card.owner_user_id ?? undefined,
+    authorHandle: card.author_handle ?? undefined,
+    authorName: card.author_name ?? undefined,
   });
 
 export const listTags = (items: Card[] = cards) => {
@@ -112,7 +122,7 @@ export const listCards = async (): Promise<Card[]> => {
 
   const { data, error } = await supabase
     .from("cards")
-    .select("slug, title, type, character, tags, source_url, youtube_url")
+    .select("slug, title, type, character, tags, source_url, youtube_url, owner_user_id, author_handle, author_name")
     .order("title", { ascending: true });
 
   if (error || !data) {
@@ -132,7 +142,7 @@ export const getCardBySlugAsync = async (slug: string): Promise<Card | undefined
 
   const { data, error } = await supabase
     .from("cards")
-    .select("slug, title, type, character, tags, source_url, youtube_url")
+    .select("slug, title, type, character, tags, source_url, youtube_url, owner_user_id, author_handle, author_name")
     .eq("slug", slug)
     .maybeSingle();
 

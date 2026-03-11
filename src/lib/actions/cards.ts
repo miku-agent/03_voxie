@@ -4,6 +4,7 @@
 import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 import { CardPayload } from "@/lib/card-form";
+import { requireCurrentAuthoredProfile } from "@/lib/authored-content";
 import { insertMockCard, isMockWriteModeEnabled } from "@/lib/mock-db";
 
 function generateSlug(title: string): string {
@@ -13,6 +14,14 @@ function generateSlug(title: string): string {
 export async function createCard(payload: CardPayload) {
   try {
     const slug = generateSlug(payload.title) + "-" + Date.now();
+    const authored = await requireCurrentAuthoredProfile();
+
+    if ("error" in authored) {
+      return {
+        success: false,
+        error: authored.error,
+      };
+    }
 
     if (isMockWriteModeEnabled()) {
       insertMockCard({
@@ -23,6 +32,9 @@ export async function createCard(payload: CardPayload) {
         tags: payload.tags,
         source_url: payload.source_url,
         youtube_url: payload.youtube_url,
+        ownerUserId: authored.identity.userId,
+        authorHandle: authored.identity.handle,
+        authorName: authored.identity.name,
       });
 
       revalidatePath("/");
@@ -54,6 +66,9 @@ export async function createCard(payload: CardPayload) {
         tags: payload.tags,
         source_url: payload.source_url,
         youtube_url: payload.youtube_url,
+        owner_user_id: authored.identity.userId,
+        author_handle: authored.identity.handle,
+        author_name: authored.identity.name,
       } as any)
       .select()
       .single();

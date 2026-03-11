@@ -19,6 +19,9 @@ export interface Database {
           tags: string[]
           source_url: string | null
           youtube_url: string | null
+          owner_user_id: string | null
+          author_handle: string | null
+          author_name: string | null
           created_at: string
           updated_at: string
         }
@@ -31,6 +34,9 @@ export interface Database {
           tags?: string[]
           source_url?: string | null
           youtube_url?: string | null
+          owner_user_id?: string | null
+          author_handle?: string | null
+          author_name?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -43,6 +49,9 @@ export interface Database {
           tags?: string[]
           source_url?: string | null
           youtube_url?: string | null
+          owner_user_id?: string | null
+          author_handle?: string | null
+          author_name?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -53,6 +62,9 @@ export interface Database {
           slug: string
           name: string
           description: string | null
+          owner_user_id: string | null
+          author_handle: string | null
+          author_name: string | null
           tags: string[]
           created_at: string
           updated_at: string
@@ -62,6 +74,9 @@ export interface Database {
           slug: string
           name: string
           description?: string | null
+          owner_user_id?: string | null
+          author_handle?: string | null
+          author_name?: string | null
           tags?: string[]
           created_at?: string
           updated_at?: string
@@ -71,6 +86,9 @@ export interface Database {
           slug?: string
           name?: string
           description?: string | null
+          owner_user_id?: string | null
+          author_handle?: string | null
+          author_name?: string | null
           tags?: string[]
           created_at?: string
           updated_at?: string

@@ -17,6 +17,13 @@ describe("deck actions", () => {
       isSupabaseConfigured: () => false,
       supabase: null,
     }));
+    vi.doMock("@/lib/authored-content", () => ({
+      requireCurrentAuthoredProfile: () =>
+        Promise.resolve({
+          user: { id: "user-1" },
+          identity: { userId: "user-1", handle: "bini59", name: "빈이" },
+        }),
+    }));
 
     const { createDeck } = await import("@/lib/actions/decks");
 
@@ -71,6 +78,13 @@ describe("deck actions", () => {
       isSupabaseConfigured: () => true,
       supabase: { from },
     }));
+    vi.doMock("@/lib/authored-content", () => ({
+      requireCurrentAuthoredProfile: () =>
+        Promise.resolve({
+          user: { id: "user-1" },
+          identity: { userId: "user-1", handle: "bini59", name: "빈이" },
+        }),
+    }));
 
     const { createDeck } = await import("@/lib/actions/decks");
 
@@ -90,6 +104,9 @@ describe("deck actions", () => {
       description: "대표곡 모음",
       intro: "초기 미쿠의 흐름을 읽는 덱",
       curator_note: "대표곡에서 감정선 확장으로 읽어주세요.",
+      owner_user_id: "user-1",
+      author_handle: "bini59",
+      author_name: "빈이",
       tags: ["classic", "miku"],
     });
     expect(deckCardsInsert).toHaveBeenCalledWith([

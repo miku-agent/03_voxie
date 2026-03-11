@@ -21,6 +21,7 @@ export type Deck = {
   introBody?: string;
   readingGuide?: string;
   featured?: boolean;
+  ownerUserId?: string;
   authorHandle?: string;
   authorName?: string;
   cardNotes?: Record<string, DeckCardNote>;
@@ -53,6 +54,9 @@ type SupabaseDeckRow = {
   description: string | null;
   intro: string | null;
   curator_note: string | null;
+  owner_user_id: string | null;
+  author_handle: string | null;
+  author_name: string | null;
   tags: string[] | null;
   deck_cards?:
     | Array<{
@@ -70,6 +74,9 @@ const enrichDeck = (deck: {
   curatorNote?: string;
   tags: string[];
   cards: string[];
+  ownerUserId?: string;
+  authorHandle?: string;
+  authorName?: string;
 }): Deck => ({
   ...deckDetails[deck.slug],
   ...deck,
@@ -82,6 +89,9 @@ const normalizeDeck = (deck: SupabaseDeckRow): Deck =>
     description: deck.description ?? undefined,
     intro: deck.intro ?? undefined,
     curatorNote: deck.curator_note ?? undefined,
+    ownerUserId: deck.owner_user_id ?? undefined,
+    authorHandle: deck.author_handle ?? undefined,
+    authorName: deck.author_name ?? undefined,
     tags: deck.tags ?? [],
     cards: (deck.deck_cards ?? [])
       .sort((a, b) => a.position - b.position)
@@ -110,7 +120,7 @@ export const searchDecks = (query: string, items: Deck[] = decks) => {
 };
 
 const DECK_SELECT =
-  "slug, name, description, intro, curator_note, tags, deck_cards(position, cards!inner(slug))";
+  "slug, name, description, intro, curator_note, owner_user_id, author_handle, author_name, tags, deck_cards(position, cards!inner(slug))";
 
 export const listDecks = async (): Promise<Deck[]> => {
   if (isMockWriteModeEnabled()) return listMockDecks().map(enrichDeck);
