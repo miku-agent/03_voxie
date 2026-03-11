@@ -20,12 +20,10 @@ export default async function DeckListPage({
             <span>{decks.length.toString().padStart(2, "0")} results</span>
           </div>
           <div className="px-5 py-6 sm:px-8 sm:py-8">
-            <h1 className="text-3xl font-semibold uppercase tracking-[0.18em] sm:text-4xl">
-              Decks
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--terminal-muted)]">
-              카드로 묶은 플레이리스트를 미쿠 콘솔 스타일로 탐색해요. 차분한 딥네이비
-              배경 위에 블루그린 phosphor 하이라이트를 얹었어요.
+            <h1 className="text-3xl font-semibold sm:text-4xl">Decks</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--terminal-soft)]">
+              카드들을 시대, 감정, 퍼포먼스 맥락으로 엮는 큐레이션 묶음이에요. 덱이 왜 존재하는지
+              바로 보이도록 설명과 예시를 함께 노출합니다.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link className="terminal-button" href="/decks/new">
@@ -49,7 +47,7 @@ export default async function DeckListPage({
                 type="text"
                 name="q"
                 defaultValue={query}
-                placeholder="search --decks"
+                placeholder="덱 이름, 설명, 태그 검색"
                 className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
               />
               <button type="submit" className="terminal-button sm:min-w-36">
@@ -65,12 +63,10 @@ export default async function DeckListPage({
               <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">
                 no decks loaded
               </p>
-              <h2 className="mt-3 text-2xl font-semibold uppercase tracking-[0.12em]">
-                아직 덱이 없어요
-              </h2>
+              <h2 className="mt-3 text-2xl font-semibold">아직 덱이 없어요</h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--terminal-muted)]">
-                첫 플레이리스트를 만들면 카드들을 테마별로 묶어 볼 수 있어요. 미쿠 콘솔의
-                다음 패널은 덱 생성 화면이에요.
+                첫 플레이리스트를 만들면 카드들을 테마별로 묶어 볼 수 있어요. 미쿠 콘솔의 다음 패널은
+                덱 생성 화면이에요.
               </p>
               <div className="mt-6">
                 <Link className="terminal-button" href="/decks/new">
@@ -85,17 +81,17 @@ export default async function DeckListPage({
                   <span>{deck.cards.length} cards</span>
                   <span>deck</span>
                 </div>
-                <h2 className="mt-3 text-lg font-semibold uppercase tracking-[0.08em]">
+                <h2 className="mt-3 text-lg font-semibold">
                   <Link className="hover:text-[var(--terminal-fg)]" href={`/decks/${deck.slug}`}>
                     {deck.name}
                   </Link>
                 </h2>
-                {deck.description && (
-                  <p className="mt-3 text-sm leading-6 text-[var(--terminal-muted)]">
-                    {deck.description}
-                  </p>
+                <p className="mt-2 text-sm leading-6 text-[var(--terminal-soft)]">
+                  {deck.shortPitch ?? deck.description}
+                </p>
+                {deck.description && deck.shortPitch && (
+                  <p className="mt-2 text-xs leading-6 text-[var(--terminal-muted)]">{deck.description}</p>
                 )}
-                <div className="mt-3 h-px bg-[var(--terminal-border)]" />
                 <div className="mt-4 flex flex-wrap gap-2">
                   {deck.tags.map((tag) => (
                     <span key={tag} className="terminal-chip">
