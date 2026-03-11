@@ -115,37 +115,57 @@ export default async function Home({ searchParams }: Props) {
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {cards.map((card) => (
-            <article key={card.slug} data-testid="card" className="terminal-frame p-5">
-              <div className="flex items-center justify-between text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">
-                <span>{card.character}</span>
-                <span>{card.type}</span>
-              </div>
-              <h2 className="mt-3 text-lg font-semibold uppercase tracking-[0.08em]">
-                <Link className="hover:text-[var(--terminal-fg)]" href={`/cards/${card.slug}`}>
-                  {card.title}
-                </Link>
+          {cards.length === 0 ? (
+            <article className="terminal-shell px-6 py-10 md:col-span-2 xl:col-span-3">
+              <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">
+                no results detected
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold uppercase tracking-[0.12em]">
+                검색 결과가 없어요
               </h2>
-              <div className="mt-2 h-px bg-[var(--terminal-border)]" />
-              <div className="mt-4 flex flex-wrap gap-2">
-                {card.tags.map((item) => (
-                  <span key={item} className="terminal-chip">
-                    #{item}
-                  </span>
-                ))}
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--terminal-muted)]">
+                다른 태그를 선택하거나 검색어를 줄여보세요. 필요하면 새 카드를 바로 추가해서
+                아카이브를 채울 수도 있어요.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link className="terminal-button" href={tag ? "/" : "/cards/new"}>
+                  {tag ? "[ 필터 초기화 ]" : "[ 카드 작성 ]"}
+                </Link>
               </div>
-              {card.source_url && (
-                <a
-                  href={card.source_url}
-                  className="mt-4 inline-flex text-xs uppercase tracking-[0.12em] text-[var(--terminal-fg)]"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  source --open
-                </a>
-              )}
             </article>
-          ))}
+          ) : (
+            cards.map((card) => (
+              <article key={card.slug} data-testid="card" className="terminal-frame p-5">
+                <div className="flex items-center justify-between text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">
+                  <span>{card.character}</span>
+                  <span>{card.type}</span>
+                </div>
+                <h2 className="mt-3 text-lg font-semibold uppercase tracking-[0.08em]">
+                  <Link className="hover:text-[var(--terminal-fg)]" href={`/cards/${card.slug}`}>
+                    {card.title}
+                  </Link>
+                </h2>
+                <div className="mt-2 h-px bg-[var(--terminal-border)]" />
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {card.tags.map((item) => (
+                    <span key={item} className="terminal-chip">
+                      #{item}
+                    </span>
+                  ))}
+                </div>
+                {card.source_url && (
+                  <a
+                    href={card.source_url}
+                    className="mt-4 inline-flex text-xs uppercase tracking-[0.12em] text-[var(--terminal-fg)]"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    source --open
+                  </a>
+                )}
+              </article>
+            ))
+          )}
         </section>
       </main>
     </div>

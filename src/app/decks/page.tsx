@@ -60,32 +60,52 @@ export default async function DeckListPage({
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {decks.map((deck) => (
-            <article key={deck.slug} className="terminal-frame p-5">
-              <div className="flex items-center justify-between text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">
-                <span>{deck.cards.length} cards</span>
-                <span>deck</span>
-              </div>
-              <h2 className="mt-3 text-lg font-semibold uppercase tracking-[0.08em]">
-                <Link className="hover:text-[var(--terminal-fg)]" href={`/decks/${deck.slug}`}>
-                  {deck.name}
-                </Link>
+          {decks.length === 0 ? (
+            <article className="terminal-shell px-6 py-10 md:col-span-2 xl:col-span-3">
+              <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">
+                no decks loaded
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold uppercase tracking-[0.12em]">
+                아직 덱이 없어요
               </h2>
-              {deck.description && (
-                <p className="mt-3 text-sm leading-6 text-[var(--terminal-muted)]">
-                  {deck.description}
-                </p>
-              )}
-              <div className="mt-3 h-px bg-[var(--terminal-border)]" />
-              <div className="mt-4 flex flex-wrap gap-2">
-                {deck.tags.map((tag) => (
-                  <span key={tag} className="terminal-chip">
-                    #{tag}
-                  </span>
-                ))}
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--terminal-muted)]">
+                첫 플레이리스트를 만들면 카드들을 테마별로 묶어 볼 수 있어요. 미쿠 콘솔의
+                다음 패널은 덱 생성 화면이에요.
+              </p>
+              <div className="mt-6">
+                <Link className="terminal-button" href="/decks/new">
+                  [ 덱 생성 ]
+                </Link>
               </div>
             </article>
-          ))}
+          ) : (
+            decks.map((deck) => (
+              <article key={deck.slug} className="terminal-frame p-5">
+                <div className="flex items-center justify-between text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">
+                  <span>{deck.cards.length} cards</span>
+                  <span>deck</span>
+                </div>
+                <h2 className="mt-3 text-lg font-semibold uppercase tracking-[0.08em]">
+                  <Link className="hover:text-[var(--terminal-fg)]" href={`/decks/${deck.slug}`}>
+                    {deck.name}
+                  </Link>
+                </h2>
+                {deck.description && (
+                  <p className="mt-3 text-sm leading-6 text-[var(--terminal-muted)]">
+                    {deck.description}
+                  </p>
+                )}
+                <div className="mt-3 h-px bg-[var(--terminal-border)]" />
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {deck.tags.map((tag) => (
+                    <span key={tag} className="terminal-chip">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            ))
+          )}
         </section>
       </main>
     </div>
