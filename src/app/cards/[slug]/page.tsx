@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getCardBySlugAsync, getCardExternalLinks } from "@/lib/cards";
+import { getCardBySlugAsync, getCardExternalLinks, getYouTubeEmbedUrl } from "@/lib/cards";
 import { listDecks } from "@/lib/decks";
 
 type Props = {
@@ -26,6 +26,7 @@ export default async function CardDetail({ params }: Props) {
   }
 
   const links = getCardExternalLinks(card);
+  const embedUrl = getYouTubeEmbedUrl(card.youtube_url);
   const decks = await listDecks();
   const relatedDecks = decks.filter((deck) => deck.cards.includes(card.slug));
 
@@ -46,9 +47,7 @@ export default async function CardDetail({ params }: Props) {
               </div>
               <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">{card.title}</h1>
               {card.summary && (
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--terminal-soft)] sm:text-base">
-                  {card.summary}
-                </p>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--terminal-soft)] sm:text-base">{card.summary}</p>
               )}
               <div className="mt-4 flex flex-wrap gap-2">
                 {card.tags.map((item) => (
@@ -63,12 +62,12 @@ export default async function CardDetail({ params }: Props) {
                     관련 덱 보기
                   </Link>
                 )}
-                <a
-                  href={links.youtubeSearch}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="terminal-button w-full sm:w-auto"
-                >
+                {embedUrl && (
+                  <a href="#video" className="terminal-button w-full sm:w-auto">
+                    영상 바로 보기
+                  </a>
+                )}
+                <a href={links.youtubeSearch} target="_blank" rel="noreferrer" className="terminal-button w-full sm:w-auto">
                   YouTube 검색
                 </a>
               </div>
@@ -103,6 +102,10 @@ export default async function CardDetail({ params }: Props) {
                   <span className="text-[var(--terminal-muted)]">연결된 덱</span>
                   <span>{relatedDecks.length}</span>
                 </div>
+                <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                  <span className="text-[var(--terminal-muted)]">영상</span>
+                  <span>{embedUrl ? "있음" : "없음"}</span>
+                </div>
               </div>
             </aside>
           </div>
@@ -110,6 +113,30 @@ export default async function CardDetail({ params }: Props) {
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <article className="terminal-frame p-5 sm:p-6">
+            {embedUrl && (
+              <section id="video" className="mb-8">
+                <div className="mb-3 flex items-center justify-between gap-4">
+                  <h2 className="text-lg font-semibold">영상</h2>
+                  {links.youtube && (
+                    <a href={links.youtube} target="_blank" rel="noreferrer" className="text-sm text-[var(--terminal-soft)]">
+                      원본 열기 ↗
+                    </a>
+                  )}
+                </div>
+                <div className="overflow-hidden border border-[var(--terminal-border)] bg-black">
+                  <div className="relative aspect-video w-full">
+                    <iframe
+                      src={embedUrl}
+                      title={`${card.title} YouTube player`}
+                      className="absolute inset-0 h-full w-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              </section>
+            )}
+
             <h2 className="text-lg font-semibold">설명</h2>
             {card.description ? (
               <div className="mt-4 space-y-4 text-sm leading-7 text-[var(--terminal-soft)]">
@@ -149,6 +176,11 @@ export default async function CardDetail({ params }: Props) {
                     원문 보기
                   </a>
                 )}
+                {links.youtube && (
+                  <a href={links.youtube} target="_blank" rel="noreferrer" className="terminal-button text-center">
+                    YouTube 원본
+                  </a>
+                )}
                 <a href={links.youtubeSearch} target="_blank" rel="noreferrer" className="terminal-button text-center">
                   YouTube 검색
                 </a>
@@ -173,9 +205,7 @@ export default async function CardDetail({ params }: Props) {
                         <p className="text-sm font-semibold">{deck.name}</p>
                         <span className="text-xs text-[var(--terminal-muted)]">{deck.cards.length} cards</span>
                       </div>
-                      <p className="mt-1 text-sm leading-6 text-[var(--terminal-muted)]">
-                        {deck.shortPitch ?? deck.description}
-                      </p>
+                      <p className="mt-1 text-sm leading-6 text-[var(--terminal-muted)]">{deck.shortPitch ?? deck.description}</p>
                     </Link>
                   ))
                 ) : (

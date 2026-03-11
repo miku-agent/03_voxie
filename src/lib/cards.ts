@@ -10,6 +10,7 @@ export type Card = {
   character: string;
   tags: string[];
   source_url?: string;
+  youtube_url?: string;
   summary?: string;
   description?: string[];
   producer?: string;
@@ -19,12 +20,17 @@ export type Card = {
   whyItMatters?: string;
 };
 
-export const cards = (seed as Array<Omit<Card, "summary" | "description" | "producer" | "year" | "era" | "mood" | "whyItMatters">>).map(
-  (card) => ({
-    ...card,
-    ...cardDetails[card.slug],
-  })
-);
+export const cards = (
+  seed as Array<
+    Omit<
+      Card,
+      "summary" | "description" | "producer" | "year" | "era" | "mood" | "whyItMatters"
+    >
+  >
+).map((card) => ({
+  ...card,
+  ...cardDetails[card.slug],
+}));
 
 const enrichCard = (card: {
   slug: string;
@@ -33,6 +39,7 @@ const enrichCard = (card: {
   character: string;
   tags: string[];
   source_url?: string;
+  youtube_url?: string;
 }): Card => ({
   ...card,
   ...cardDetails[card.slug],
@@ -45,6 +52,7 @@ const normalizeCard = (card: {
   character: string;
   tags: string[] | null;
   source_url: string | null;
+  youtube_url: string | null;
 }): Card =>
   enrichCard({
     slug: card.slug,
@@ -53,6 +61,7 @@ const normalizeCard = (card: {
     character: card.character,
     tags: card.tags ?? [],
     source_url: card.source_url ?? undefined,
+    youtube_url: card.youtube_url ?? undefined,
   });
 
 export const listTags = (items: Card[] = cards) => {
@@ -89,7 +98,7 @@ export const listCards = async (): Promise<Card[]> => {
 
   const { data, error } = await supabase
     .from("cards")
-    .select("slug, title, type, character, tags, source_url")
+    .select("slug, title, type, character, tags, source_url, youtube_url")
     .order("title", { ascending: true });
 
   if (error || !data) {
@@ -109,7 +118,7 @@ export const getCardBySlugAsync = async (slug: string): Promise<Card | undefined
 
   const { data, error } = await supabase
     .from("cards")
-    .select("slug, title, type, character, tags, source_url")
+    .select("slug, title, type, character, tags, source_url, youtube_url")
     .eq("slug", slug)
     .maybeSingle();
 
@@ -126,7 +135,36 @@ export const getCardExternalLinks = (card: Card) => {
 
   return {
     source: card.source_url,
+    youtube: card.youtube_url,
     youtubeSearch: `https://www.youtube.com/results?search_query=${query}`,
     niconicoSearch: `https://www.nicovideo.jp/search/${query}`,
   };
+};
+
+export const getYouTubeEmbedUrl = (url?: string) => {
+  if (!url) return undefined;
+
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+
+    let videoId: string | null = null;
+
+    if (host === "youtu.be") {
+      videoId = parsed.pathname.slice(1).split("/")[0] || null;
+    } else if (host === "youtube.com" || host === "m.youtube.com") {
+      if (parsed.pathname === "/watch") {
+        videoId = parsed.searchParams.get("v");
+      } else if (parsed.pathname.startsWith("/embed/")) {
+        videoId = parsed.pathname.split("/")[2] || null;
+      } else if (parsed.pathname.startsWith("/shorts/")) {
+        videoId = parsed.pathname.split("/")[2] || null;
+      }
+    }
+
+    if (!videoId || !/^[A-Za-z0-9_-]{11}$/.test(videoId)) return undefined;
+    return `https://www.youtube.com/embed/${videoId}`;
+  } catch {
+    return undefined;
+  }
 };

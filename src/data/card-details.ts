@@ -6,6 +6,7 @@ export type CardDetailSeed = {
   era?: string;
   mood?: string[];
   whyItMatters?: string;
+  youtube_url?: string;
 };
 
 export const cardDetails: Record<string, CardDetailSeed> = {
@@ -20,6 +21,7 @@ export const cardDetails: Record<string, CardDetailSeed> = {
     era: "NicoNico golden age",
     mood: ["bright", "romance", "classic"],
     whyItMatters: "Voxie에서 카드로 남길 가치가 분명한 '시대의 기준점' 같은 곡이에요.",
+    youtube_url: "https://www.youtube.com/watch?v=o1jAMSQyVPc",
   },
   "world-is-mine": {
     summary: "미쿠 캐릭터성을 대중적으로 각인시킨 아이코닉 트랙.",
@@ -44,6 +46,7 @@ export const cardDetails: Record<string, CardDetailSeed> = {
     era: "Band sound / emotional classics",
     mood: ["restless", "cathartic", "rock"],
     whyItMatters: "개별 카드만으로도 설명과 감상을 읽을 이유가 생기는 대표 사례예요.",
+    youtube_url: "https://youtu.be/vnw8zURAxkU",
   },
   "ievan-polkka": {
     summary: "밈과 퍼포먼스로 폭발적으로 확산된 초기 바이럴 미쿠 카드.",

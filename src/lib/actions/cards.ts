@@ -7,15 +7,12 @@ import { CardPayload } from "@/lib/card-form";
 import { insertMockCard, isMockWriteModeEnabled } from "@/lib/mock-db";
 
 function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
 export async function createCard(payload: CardPayload) {
   try {
-    const slug = generateSlug(payload.title) + '-' + Date.now();
+    const slug = generateSlug(payload.title) + "-" + Date.now();
 
     if (isMockWriteModeEnabled()) {
       insertMockCard({
@@ -25,6 +22,7 @@ export async function createCard(payload: CardPayload) {
         character: payload.character,
         tags: payload.tags,
         source_url: payload.source_url,
+        youtube_url: payload.youtube_url,
       });
 
       revalidatePath("/");
@@ -35,14 +33,14 @@ export async function createCard(payload: CardPayload) {
         data: {
           slug,
           title: payload.title,
-        }
+        },
       };
     }
 
     if (!isSupabaseConfigured() || !supabase) {
       return {
         success: false,
-        error: "Supabase not configured. Card creation is disabled in local mode."
+        error: "Supabase not configured. Card creation is disabled in local mode.",
       };
     }
 
@@ -55,6 +53,7 @@ export async function createCard(payload: CardPayload) {
         character: payload.character,
         tags: payload.tags,
         source_url: payload.source_url,
+        youtube_url: payload.youtube_url,
       } as any)
       .select()
       .single();
@@ -63,7 +62,7 @@ export async function createCard(payload: CardPayload) {
       console.error("Failed to create card:", error);
       return {
         success: false,
-        error: "Failed to create card: " + error.message
+        error: "Failed to create card: " + error.message,
       };
     }
 
@@ -75,13 +74,13 @@ export async function createCard(payload: CardPayload) {
       data: {
         slug: (data as any).slug,
         title: (data as any).title,
-      }
+      },
     };
   } catch (error) {
     console.error("Unexpected error creating card:", error);
     return {
       success: false,
-      error: "An unexpected error occurred"
+      error: "An unexpected error occurred",
     };
   }
 }

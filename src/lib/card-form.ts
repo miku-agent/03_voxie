@@ -4,6 +4,7 @@ export type CardFormInput = {
   type: string;
   tags: string;
   sourceUrl?: string;
+  youtubeUrl?: string;
 };
 
 export type CardPayload = {
@@ -12,6 +13,7 @@ export type CardPayload = {
   type: string;
   tags: string[];
   source_url?: string;
+  youtube_url?: string;
 };
 
 export const parseTags = (value: string) =>
@@ -26,6 +28,7 @@ export const buildCardPayload = (input: CardFormInput): CardPayload => ({
   type: input.type.trim(),
   tags: parseTags(input.tags),
   source_url: input.sourceUrl?.trim() || undefined,
+  youtube_url: input.youtubeUrl?.trim() || undefined,
 });
 
 export const validateCardPayload = (payload: CardPayload) => {

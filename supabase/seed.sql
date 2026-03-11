@@ -2,12 +2,12 @@
 -- This file can be run to populate the database with initial data
 
 -- Insert sample cards (matching existing seed.json structure)
-INSERT INTO cards (slug, title, type, character, tags, source_url) VALUES
-  ('melt', 'Melt', 'song', 'Hatsune Miku', ARRAY['classic', 'romance', '2007'], 'https://mikudb.moe/classic-miku-songs/'),
-  ('world-is-mine', 'World is Mine', 'song', 'Hatsune Miku', ARRAY['classic', 'iconic'], 'https://mikudb.moe/classic-miku-songs/'),
-  ('rolling-girl', 'Rolling Girl', 'song', 'Hatsune Miku', ARRAY['emotional', 'wowaka'], NULL),
-  ('ievan-polkka', 'Ievan Polkka', 'song', 'Hatsune Miku', ARRAY['meme', 'classic'], NULL),
-  ('reverse-rainbow', 'Reverse Rainbow', 'song', 'Rin & Len', ARRAY['duet', 'emotional'], NULL)
+INSERT INTO cards (slug, title, type, character, tags, source_url, youtube_url) VALUES
+  ('melt', 'Melt', 'song', 'Hatsune Miku', ARRAY['classic', 'romance', '2007'], 'https://mikudb.moe/classic-miku-songs/', 'https://www.youtube.com/watch?v=o1jAMSQyVPc'),
+  ('world-is-mine', 'World is Mine', 'song', 'Hatsune Miku', ARRAY['classic', 'iconic'], 'https://mikudb.moe/classic-miku-songs/', NULL),
+  ('rolling-girl', 'Rolling Girl', 'song', 'Hatsune Miku', ARRAY['emotional', 'wowaka'], NULL, 'https://youtu.be/vnw8zURAxkU'),
+  ('ievan-polkka', 'Ievan Polkka', 'song', 'Hatsune Miku', ARRAY['meme', 'classic'], NULL, NULL),
+  ('reverse-rainbow', 'Reverse Rainbow', 'song', 'Rin & Len', ARRAY['duet', 'emotional'], NULL, NULL)
 ON CONFLICT (slug) DO NOTHING;
 
 -- Insert sample decks

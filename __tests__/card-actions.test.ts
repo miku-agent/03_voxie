@@ -59,6 +59,7 @@ describe("card actions", () => {
       type: "song",
       tags: ["classic", "romance"],
       source_url: "https://example.com",
+      youtube_url: "https://www.youtube.com/watch?v=o1jAMSQyVPc",
     });
 
     expect(from).toHaveBeenCalledWith("cards");
@@ -69,6 +70,7 @@ describe("card actions", () => {
       character: "Hatsune Miku",
       tags: ["classic", "romance"],
       source_url: "https://example.com",
+      youtube_url: "https://www.youtube.com/watch?v=o1jAMSQyVPc",
     });
     expect(result).toEqual({
       success: true,
