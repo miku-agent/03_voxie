@@ -3,11 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  buildCardPayload,
-  CardFormInput,
-  validateCardPayload,
-} from "@/lib/card-form";
+import { buildCardPayload, CardFormInput, validateCardPayload } from "@/lib/card-form";
 import { createCard } from "@/lib/actions/cards";
 
 const initialState: CardFormInput = {
@@ -16,6 +12,7 @@ const initialState: CardFormInput = {
   type: "song",
   tags: "",
   sourceUrl: "",
+  youtubeUrl: "",
 };
 
 const typeOptions = [
@@ -86,6 +83,7 @@ export default function CardCreatePage() {
                 <li>• 제목, 캐릭터, 태그는 필수예요.</li>
                 <li>• 태그는 쉼표로 구분해 입력해요.</li>
                 <li>• 출처 링크는 있으면 나중에 탐색이 쉬워져요.</li>
+                <li>• YouTube 링크를 넣으면 카드 상세에서 바로 재생할 수 있어요.</li>
               </ul>
             </aside>
           </div>
@@ -104,9 +102,7 @@ export default function CardCreatePage() {
                     className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
                     placeholder="예: Melt"
                   />
-                  {errors.includes("title") && (
-                    <p className="text-xs text-[var(--terminal-error)]">제목을 입력해줘.</p>
-                  )}
+                  {errors.includes("title") && <p className="text-xs text-[var(--terminal-error)]">제목을 입력해줘.</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -117,9 +113,7 @@ export default function CardCreatePage() {
                     className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
                     placeholder="예: Hatsune Miku"
                   />
-                  {errors.includes("character") && (
-                    <p className="text-xs text-[var(--terminal-error)]">캐릭터를 입력해줘.</p>
-                  )}
+                  {errors.includes("character") && <p className="text-xs text-[var(--terminal-error)]">캐릭터를 입력해줘.</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -135,9 +129,7 @@ export default function CardCreatePage() {
                       </option>
                     ))}
                   </select>
-                  {errors.includes("type") && (
-                    <p className="text-xs text-[var(--terminal-error)]">타입을 입력해줘.</p>
-                  )}
+                  {errors.includes("type") && <p className="text-xs text-[var(--terminal-error)]">타입을 입력해줘.</p>}
                 </div>
               </div>
             </section>
@@ -152,37 +144,44 @@ export default function CardCreatePage() {
                   className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
                   placeholder="예: classic, romance, live"
                 />
-                <p className="text-xs text-[var(--terminal-muted)]">
-                  여러 태그는 쉼표(,)로 구분해 주세요.
-                </p>
-                {errors.includes("tags") && (
-                  <p className="text-xs text-[var(--terminal-error)]">태그를 하나 이상 입력해줘.</p>
-                )}
+                <p className="text-xs text-[var(--terminal-muted)]">여러 태그는 쉼표(,)로 구분해 주세요.</p>
+                {errors.includes("tags") && <p className="text-xs text-[var(--terminal-error)]">태그를 하나 이상 입력해줘.</p>}
               </div>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold">참고 링크</h2>
-              <div className="mt-4 space-y-2">
-                <label className="text-sm text-[var(--terminal-soft)]">출처 링크</label>
-                <input
-                  value={form.sourceUrl}
-                  onChange={onChange("sourceUrl")}
-                  className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
-                  placeholder="https://..."
-                />
-                <p className="text-xs text-[var(--terminal-muted)]">
-                  공식 링크나 참고 아카이브 주소가 있다면 함께 저장할 수 있어요.
-                </p>
+              <div className="mt-4 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-[var(--terminal-soft)]">출처 링크</label>
+                  <input
+                    value={form.sourceUrl}
+                    onChange={onChange("sourceUrl")}
+                    className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
+                    placeholder="https://..."
+                  />
+                  <p className="text-xs text-[var(--terminal-muted)]">
+                    공식 링크나 참고 아카이브 주소가 있다면 함께 저장할 수 있어요.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-[var(--terminal-soft)]">YouTube 링크</label>
+                  <input
+                    value={form.youtubeUrl}
+                    onChange={onChange("youtubeUrl")}
+                    className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                  />
+                  <p className="text-xs text-[var(--terminal-muted)]">
+                    watch, youtu.be, shorts 링크를 지원해요. 저장 후 카드 상세에서 바로 embed 됩니다.
+                  </p>
+                </div>
               </div>
             </section>
 
             <div className="flex flex-col gap-3 border-t border-[var(--terminal-border)] pt-6 sm:flex-row sm:flex-wrap sm:items-center">
-              <button
-                type="submit"
-                className="terminal-button w-full disabled:opacity-50 sm:w-auto"
-                disabled={isSubmitting}
-              >
+              <button type="submit" className="terminal-button w-full disabled:opacity-50 sm:w-auto" disabled={isSubmitting}>
                 {isSubmitting ? "저장 중..." : "카드 저장"}
               </button>
               <Link className="terminal-button w-full sm:w-auto" href="/">
@@ -206,12 +205,11 @@ export default function CardCreatePage() {
               </div>
               <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
                 <span className="text-[var(--terminal-muted)]">태그 수</span>
-                <span>
-                  {form.tags
-                    .split(",")
-                    .map((item) => item.trim())
-                    .filter(Boolean).length}
-                </span>
+                <span>{form.tags.split(",").map((item) => item.trim()).filter(Boolean).length}</span>
+              </div>
+              <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                <span className="text-[var(--terminal-muted)]">YouTube 링크</span>
+                <span>{form.youtubeUrl ? "입력됨" : "없음"}</span>
               </div>
             </div>
           </aside>
