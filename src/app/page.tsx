@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { filterCards, listCards, listTags, searchCards } from "@/lib/cards";
 import { listDecks } from "@/lib/decks";
+import { getProfileHref } from "@/lib/profiles";
 
 type Props = {
   searchParams?: Promise<{ tag?: string; q?: string; created?: string }>;
@@ -138,6 +139,15 @@ export default async function Home({ searchParams }: Props) {
                     <span className="truncate">{deck.name}</span>
                     <span>{deck.cards.length} cards</span>
                   </div>
+                  <div className="mt-2 text-xs text-[var(--terminal-muted)]">
+                    {deck.authorName && deck.authorHandle ? (
+                      <Link href={getProfileHref(deck.authorHandle)!} className="underline-offset-4 hover:underline">
+                        by {deck.authorName}
+                      </Link>
+                    ) : (
+                      <span>author unknown</span>
+                    )}
+                  </div>
                   <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--terminal-soft)]">
                     {deck.shortPitch ?? deck.description}
                   </p>
@@ -203,6 +213,13 @@ export default async function Home({ searchParams }: Props) {
                   <div className="dense-meta mt-3">
                     {card.producer && <span>{card.producer}</span>}
                     {card.year && <span>{card.year}</span>}
+                    {card.authorName && card.authorHandle ? (
+                      <Link href={getProfileHref(card.authorHandle)!} className="underline-offset-4 hover:underline">
+                        by {card.authorName}
+                      </Link>
+                    ) : (
+                      <span>author unknown</span>
+                    )}
                     <span>{card.tags.length} tags</span>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">

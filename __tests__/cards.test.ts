@@ -22,4 +22,10 @@ describe("cards archive helpers", () => {
     const results = searchCards("wowaka", cards);
     expect(results.map((card) => card.slug)).toContain("rolling-girl");
   });
+
+  it("includes author attribution in seed metadata", () => {
+    const card = getCardBySlug("melt", cards);
+    expect(card?.authorHandle).toBe("bini59");
+    expect(card?.authorName).toBe("빈이");
+  });
 });

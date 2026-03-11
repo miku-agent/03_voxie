@@ -7,6 +7,8 @@ export type CardDetailSeed = {
   mood?: string[];
   whyItMatters?: string;
   youtube_url?: string;
+  authorHandle?: string;
+  authorName?: string;
 };
 
 export const cardDetails: Record<string, CardDetailSeed> = {
@@ -22,6 +24,8 @@ export const cardDetails: Record<string, CardDetailSeed> = {
     mood: ["bright", "romance", "classic"],
     whyItMatters: "Voxie에서 카드로 남길 가치가 분명한 '시대의 기준점' 같은 곡이에요.",
     youtube_url: "https://www.youtube.com/watch?v=o1jAMSQyVPc",
+    authorHandle: "bini59",
+    authorName: "빈이",
   },
   "world-is-mine": {
     summary: "미쿠 캐릭터성을 대중적으로 각인시킨 아이코닉 트랙.",
@@ -34,6 +38,8 @@ export const cardDetails: Record<string, CardDetailSeed> = {
     era: "Character-defining classics",
     mood: ["playful", "iconic", "performance"],
     whyItMatters: "단일 곡을 넘어 캐릭터 해석과 무대 연출의 출발점이 되는 카드예요.",
+    authorHandle: "bini59",
+    authorName: "빈이",
   },
   "rolling-girl": {
     summary: "강한 질주감과 불안한 감정선이 겹치는 wowaka 대표곡.",
@@ -47,6 +53,8 @@ export const cardDetails: Record<string, CardDetailSeed> = {
     mood: ["restless", "cathartic", "rock"],
     whyItMatters: "개별 카드만으로도 설명과 감상을 읽을 이유가 생기는 대표 사례예요.",
     youtube_url: "https://youtu.be/vnw8zURAxkU",
+    authorHandle: "miku",
+    authorName: "初音ミク",
   },
   "ievan-polkka": {
     summary: "밈과 퍼포먼스로 폭발적으로 확산된 초기 바이럴 미쿠 카드.",
@@ -59,6 +67,8 @@ export const cardDetails: Record<string, CardDetailSeed> = {
     era: "Viral internet moments",
     mood: ["meme", "playful", "folk"],
     whyItMatters: "곡 그 자체뿐 아니라 팬덤 문화의 전파 경로까지 묶어 보여주기 좋아요.",
+    authorHandle: "miku",
+    authorName: "初音ミク",
   },
   "reverse-rainbow": {
     summary: "무드와 하모니를 중심으로 기억되는 감성 듀엣 카드.",
@@ -71,5 +81,7 @@ export const cardDetails: Record<string, CardDetailSeed> = {
     era: "Atmospheric duet picks",
     mood: ["dreamy", "duet", "late-night"],
     whyItMatters: "덱 기능이 단순 분류가 아니라 분위기 큐레이션이라는 걸 보여주는 카드예요.",
+    authorHandle: "bini59",
+    authorName: "빈이",
   },
 };
