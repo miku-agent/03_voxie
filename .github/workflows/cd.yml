@@ -10,15 +10,15 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Ensure app directory
-        run: mkdir -p /opt/apps/03_voxie
+        run: mkdir -p /Users/bini/apps/03_voxie
 
       - name: Sync repository
         shell: bash
         run: |
-          if [ ! -d "/opt/apps/03_voxie/.git" ]; then
-            git clone https://github.com/miku-agent/03_voxie.git /opt/apps/03_voxie
+          if [ ! -d "/Users/bini/apps/03_voxie/.git" ]; then
+            git clone https://github.com/miku-agent/03_voxie.git /Users/bini/apps/03_voxie
           fi
-          cd /opt/apps/03_voxie
+          cd /Users/bini/apps/03_voxie
           git fetch --all
           git reset --hard origin/main
 
@@ -33,15 +33,15 @@ jobs:
           version: 10.30.3
 
       - name: Install deps
-        working-directory: /opt/apps/03_voxie
+        working-directory: /Users/bini/apps/03_voxie
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        working-directory: /opt/apps/03_voxie
+        working-directory: /Users/bini/apps/03_voxie
         run: pnpm build
 
       - name: Restart app with PM2
-        working-directory: /opt/apps/03_voxie
+        working-directory: /Users/bini/apps/03_voxie
         shell: bash
         run: |
           if pm2 describe 03_voxie > /dev/null; then
