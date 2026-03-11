@@ -181,7 +181,8 @@ export default function DeckCreateClient({ cards }: Props) {
                   {filteredCards.map((card) => (
                     <label
                       key={card.slug}
-                      className="flex items-start gap-3 border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm"
+                      data-active={form.cards.includes(card.slug)}
+                      className="terminal-selectable flex items-start gap-3 border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm"
                     >
                       <input
                         type="checkbox"
@@ -200,7 +201,9 @@ export default function DeckCreateClient({ cards }: Props) {
                   ))}
                 </div>
                 {filteredCards.length === 0 && (
-                  <p className="text-sm text-[var(--terminal-muted)]">검색 결과에 맞는 카드가 없어요.</p>
+                  <div className="border border-[var(--terminal-border)] px-4 py-4 text-sm text-[var(--terminal-muted)]">
+                    검색 결과에 맞는 카드가 없어요. 다른 키워드로 다시 찾거나, 먼저 카드를 추가한 뒤 덱으로 묶어보세요.
+                  </div>
                 )}
                 {errors.includes("cards") && (
                   <p className="text-xs text-[var(--terminal-error)]">카드를 최소 1개 선택해줘.</p>
@@ -208,15 +211,15 @@ export default function DeckCreateClient({ cards }: Props) {
               </div>
             </section>
 
-            <div className="flex flex-wrap items-center gap-3 border-t border-[var(--terminal-border)] pt-6">
+            <div className="flex flex-col gap-3 border-t border-[var(--terminal-border)] pt-6 sm:flex-row sm:flex-wrap sm:items-center">
               <button
                 type="submit"
-                className="terminal-button disabled:opacity-50"
+                className="terminal-button w-full disabled:opacity-50 sm:w-auto"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "저장 중..." : "덱 저장"}
               </button>
-              <Link className="terminal-button" href="/decks">
+              <Link className="terminal-button w-full sm:w-auto" href="/decks">
                 취소
               </Link>
             </div>

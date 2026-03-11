@@ -91,7 +91,7 @@ export default function CardCreatePage() {
           </div>
         </header>
 
-        <form onSubmit={onSubmit} className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <form onSubmit={onSubmit} className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-6">
           <div className="terminal-frame space-y-6 p-5 sm:p-6">
             <section>
               <h2 className="text-lg font-semibold">기본 정보</h2>
@@ -177,15 +177,15 @@ export default function CardCreatePage() {
               </div>
             </section>
 
-            <div className="flex flex-wrap items-center gap-3 border-t border-[var(--terminal-border)] pt-6">
+            <div className="flex flex-col gap-3 border-t border-[var(--terminal-border)] pt-6 sm:flex-row sm:flex-wrap sm:items-center">
               <button
                 type="submit"
-                className="terminal-button disabled:opacity-50"
+                className="terminal-button w-full disabled:opacity-50 sm:w-auto"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "저장 중..." : "카드 저장"}
               </button>
-              <Link className="terminal-button" href="/">
+              <Link className="terminal-button w-full sm:w-auto" href="/">
                 취소
               </Link>
             </div>
