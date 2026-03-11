@@ -3,13 +3,14 @@ import { filterCards, listCards, listTags, searchCards } from "@/lib/cards";
 import { listDecks } from "@/lib/decks";
 
 type Props = {
-  searchParams?: Promise<{ tag?: string; q?: string }>;
+  searchParams?: Promise<{ tag?: string; q?: string; created?: string }>;
 };
 
 export default async function Home({ searchParams }: Props) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const tag = resolvedSearchParams.tag;
   const query = resolvedSearchParams.q ?? "";
+  const created = resolvedSearchParams.created;
   const allCards = await listCards();
   const allDecks = await listDecks();
   const searchedCards = searchCards(query, allCards);
@@ -18,6 +19,10 @@ export default async function Home({ searchParams }: Props) {
   );
   const tags = listTags(allCards);
   const featuredDecks = allDecks.filter((deck) => deck.featured).slice(0, 3);
+  const hasFilters = Boolean(query || tag);
+  const resultLabel = hasFilters
+    ? `검색/필터 결과 ${cards.length}개`
+    : `전체 카드 ${cards.length}개`;
 
   return (
     <div className="min-h-screen text-white">
@@ -44,6 +49,12 @@ export default async function Home({ searchParams }: Props) {
               </div>
             </div>
 
+            {created === "card" && (
+              <div className="terminal-notice mt-5">
+                카드가 저장됐어요. 이제 태그를 고르거나 검색해서 바로 위치를 확인할 수 있어요.
+              </div>
+            )}
+
             <form action="/" className="mt-6 flex flex-col gap-3 sm:flex-row">
               <input
                 type="text"
@@ -58,9 +69,10 @@ export default async function Home({ searchParams }: Props) {
             </form>
 
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--terminal-muted)]">
-              <span>{cards.length}개 표시 중</span>
-              {(query || tag) && <span>· 현재 필터 적용됨</span>}
-              {(query || tag) && (
+              <span>{resultLabel}</span>
+              {query && <span>· 검색어: “{query}”</span>}
+              {tag && <span>· 태그: #{tag}</span>}
+              {hasFilters && (
                 <Link href="/" className="text-[var(--terminal-soft)] underline-offset-4 hover:underline">
                   초기화
                 </Link>
