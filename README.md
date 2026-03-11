@@ -51,6 +51,9 @@ created_at timestamp
    cp .env.example .env.local
    ```
 3. Supabase 프로젝트 설정에서 URL과 Anon Key를 복사하여 `.env.local`에 추가
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+   - 이 값들은 브라우저 공개용 `NEXT_PUBLIC_*`가 아니라 **Next 서버 전용**으로 사용합니다.
 
 ### 데이터베이스 마이그레이션
 
