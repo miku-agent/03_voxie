@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import localFont from "next/font/local";
+import { getSiteUrl } from "@/lib/deck-share";
 import "./globals.css";
 
 const galmuri = localFont({
@@ -21,6 +22,7 @@ const galmuri = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: "Voxie",
   description: "Vocaloid community card archive",
 };

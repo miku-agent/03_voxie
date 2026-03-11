@@ -1,12 +1,48 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { getDeckBySlugAsync } from "@/lib/decks";
+import ShareDeckActions from "./ShareDeckActions";
 import { getCardBySlugAsync, type Card } from "@/lib/cards";
+import { getDeckShareDescription, getDeckShareUrl } from "@/lib/deck-share";
+import { getDeckBySlugAsync } from "@/lib/decks";
 import { getProfileHref } from "@/lib/profiles";
 
 type Props = {
   params: Promise<{ slug: string }>;
   searchParams?: Promise<{ created?: string }>;
 };
+
+export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
+  const { slug } = await params;
+  const deck = await getDeckBySlugAsync(slug);
+
+  if (!deck) {
+    return {
+      title: "덱을 찾을 수 없어요 | Voxie",
+      description: "요청한 Voxie 덱을 찾을 수 없어요.",
+    };
+  }
+
+  const title = `${deck.name} | Voxie`;
+  const description = getDeckShareDescription(deck);
+  const url = getDeckShareUrl(deck.slug);
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/decks/${deck.slug}` },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
 
 export default async function DeckDetailPage({ params, searchParams }: Props) {
   const { slug } = await params;
@@ -29,6 +65,7 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
     );
   }
 
+  const shareUrl = getDeckShareUrl(deck.slug);
   const cards = (await Promise.all(deck.cards.map((cardSlug) => getCardBySlugAsync(cardSlug)))).filter(
     (card): card is Card => Boolean(card),
   );
@@ -72,7 +109,9 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
                 <div className="mt-5 border border-[var(--terminal-border)] bg-[rgba(57,197,187,0.04)] px-4 py-4 sm:px-5">
                   <p className="text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">deck intro</p>
                   <h2 className="mt-2 text-xl font-semibold">{deck.introTitle ?? "이 덱을 읽는 방법"}</h2>
-                  {(deck.intro ?? deck.introBody) && <p className="mt-3 text-sm leading-7 text-[var(--terminal-soft)]">{deck.intro ?? deck.introBody}</p>}
+                  {(deck.intro ?? deck.introBody) && (
+                    <p className="mt-3 text-sm leading-7 text-[var(--terminal-soft)]">{deck.intro ?? deck.introBody}</p>
+                  )}
                 </div>
               )}
               <div className="mt-4 flex flex-wrap gap-2">
@@ -95,6 +134,9 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
                     흐름으로 읽기
                   </a>
                 )}
+                <a className="terminal-button w-full sm:w-auto" href={shareUrl}>
+                  공개 링크 열기
+                </a>
               </div>
             </div>
 
@@ -149,6 +191,38 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
             )}
           </article>
 
+          <ShareDeckActions title={deck.name} url={shareUrl} />
+        </section>
+
+        <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <article className="terminal-frame p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold">이 덱을 공유하는 방법</h2>
+                <p className="mt-1 text-sm text-[var(--terminal-muted)]">
+                  공개 URL 하나로 바로 열리고, 설명과 카드 흐름이 함께 보여서 외부에서 들어와도 맥락을 바로 이해할 수 있어요.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="border border-[var(--terminal-border)] px-4 py-4">
+                <p className="text-xs text-[var(--terminal-muted)]">01</p>
+                <p className="mt-2 text-sm font-semibold">안정적인 공개 URL</p>
+                <p className="mt-2 text-sm leading-6 text-[var(--terminal-soft)]">덱 slug 기반 주소라서 다시 공유해도 링크가 흔들리지 않아요.</p>
+              </div>
+              <div className="border border-[var(--terminal-border)] px-4 py-4">
+                <p className="text-xs text-[var(--terminal-muted)]">02</p>
+                <p className="mt-2 text-sm font-semibold">복사/공유 CTA</p>
+                <p className="mt-2 text-sm leading-6 text-[var(--terminal-soft)]">복사 버튼과 네이티브 공유를 같이 제공해서 모바일/데스크탑 둘 다 대응해요.</p>
+              </div>
+              <div className="border border-[var(--terminal-border)] px-4 py-4">
+                <p className="text-xs text-[var(--terminal-muted)]">03</p>
+                <p className="mt-2 text-sm font-semibold">직접 열어도 이해되는 구조</p>
+                <p className="mt-2 text-sm leading-6 text-[var(--terminal-soft)]">인트로, 읽는 가이드, story flow가 바로 보여서 링크 랜딩 품질이 좋아져요.</p>
+              </div>
+            </div>
+          </article>
+
           <aside className="terminal-frame p-5">
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-lg font-semibold">story map</h2>
@@ -162,10 +236,14 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
                 return (
                   <div key={card.slug} className="border border-[var(--terminal-border)] px-4 py-4">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-[var(--terminal-fg)]">{String(index + 1).padStart(2, "0")}. {card.title}</p>
+                      <p className="text-sm font-semibold text-[var(--terminal-fg)]">
+                        {String(index + 1).padStart(2, "0")}. {card.title}
+                      </p>
                       <span className="text-xs uppercase text-[var(--terminal-muted)]">{card.type}</span>
                     </div>
-                    {note?.lead && <p className="mt-2 text-xs uppercase tracking-[0.12em] text-[var(--terminal-muted)]">{note.lead}</p>}
+                    {note?.lead && (
+                      <p className="mt-2 text-xs uppercase tracking-[0.12em] text-[var(--terminal-muted)]">{note.lead}</p>
+                    )}
                     <p className="mt-2 text-sm leading-6 text-[var(--terminal-muted)]">{note?.note ?? card.summary}</p>
                   </div>
                 );
