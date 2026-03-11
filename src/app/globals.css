@@ -1,4 +1,13 @@
 @import "tailwindcss";
+@import url("https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css");
+
+@font-face {
+  font-family: "Galmuri11";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/Galmuri11-Bold.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
 
 :root {
   --terminal-bg: #050816;
@@ -14,6 +23,7 @@
   --terminal-border-strong: rgba(126, 252, 242, 0.58);
   --terminal-glow: rgba(57, 197, 187, 0.18);
   --terminal-shadow: rgba(8, 230, 219, 0.08);
+  --font-terminal: "Galmuri11";
 }
 
 @theme inline {
@@ -54,17 +64,20 @@ a:hover {
 
 input,
 textarea,
-button {
+button,
+select {
   font: inherit;
 }
 
 input,
-textarea {
+textarea,
+select {
   outline: none;
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   border-color: var(--terminal-border-strong);
   box-shadow: 0 0 0 1px var(--terminal-border-strong), 0 0 14px var(--terminal-shadow);
 }
@@ -111,7 +124,7 @@ textarea:focus {
   background: rgba(57, 197, 187, 0.08);
   padding: 0.7rem 1rem;
   font-size: 0.875rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .terminal-button:hover {
@@ -123,7 +136,7 @@ textarea:focus {
   padding: 0.35rem 0.7rem;
   font-size: 0.75rem;
   color: var(--terminal-muted);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   background: rgba(57, 197, 187, 0.04);
 }
 
@@ -141,4 +154,12 @@ textarea:focus {
 .nav-link:hover {
   border-color: var(--terminal-border);
   background: rgba(57, 197, 187, 0.05);
+}
+
+.dense-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--terminal-muted);
 }

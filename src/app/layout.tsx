@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-terminal",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Voxie",
@@ -20,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={`${jetbrainsMono.variable} antialiased`}>
+      <body className="antialiased">
         <div className="site-shell">
           <header className="border-b border-[var(--terminal-border)] bg-[rgba(5,8,22,0.88)] backdrop-blur-sm">
             <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">

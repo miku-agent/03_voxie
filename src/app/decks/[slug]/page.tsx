@@ -35,14 +35,24 @@ export default async function DeckDetailPage({ params }: Props) {
             <Link className="text-sm text-[var(--terminal-muted)]" href="/decks">
               ← 덱 목록
             </Link>
-            <Link className="terminal-button" href={`/decks/${deck.slug}/edit`}>
-              덱 수정
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link className="terminal-button" href={`/decks/${deck.slug}/edit`}>
+                덱 수정
+              </Link>
+              <Link className="terminal-button" href="/cards/new">
+                카드 추가
+              </Link>
+            </div>
           </div>
 
           <div className="mt-4 grid gap-6 md:grid-cols-[minmax(0,1fr)_260px]">
             <div>
-              <h1 className="text-3xl font-semibold sm:text-4xl">{deck.name}</h1>
+              <div className="dense-meta">
+                <span>{cards.length} cards</span>
+                <span>{deck.tags.length} tags</span>
+                {deck.featured && <span>featured deck</span>}
+              </div>
+              <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">{deck.name}</h1>
               {deck.description && (
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--terminal-soft)]">
                   {deck.description}
@@ -58,7 +68,8 @@ export default async function DeckDetailPage({ params }: Props) {
             </div>
 
             <aside className="terminal-frame p-4">
-              <div className="space-y-3 text-sm">
+              <p className="text-sm font-semibold">덱 상태</p>
+              <div className="mt-3 space-y-3 text-sm">
                 <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
                   <span className="text-[var(--terminal-muted)]">카드 수</span>
                   <span>{cards.length}</span>
@@ -94,7 +105,12 @@ export default async function DeckDetailPage({ params }: Props) {
           </article>
 
           <aside className="terminal-frame p-5">
-            <h2 className="text-lg font-semibold">미리 보기</h2>
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-lg font-semibold">미리 보기</h2>
+              <Link href="/decks/new" className="text-sm text-[var(--terminal-soft)]">
+                새 덱 →
+              </Link>
+            </div>
             <div className="mt-4 space-y-3">
               {cards.slice(0, 3).map((card) => (
                 <div key={card?.slug} className="border border-[var(--terminal-border)] px-4 py-4">
@@ -106,24 +122,36 @@ export default async function DeckDetailPage({ params }: Props) {
           </aside>
         </section>
 
-        <section className="mt-8 grid gap-4">
-          <div>
-            <h2 className="text-lg font-semibold">포함된 카드</h2>
-            <p className="mt-1 text-sm text-[var(--terminal-muted)]">이 덱에 묶인 카드 목록입니다.</p>
+        <section className="mt-8 grid gap-3">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">포함된 카드</h2>
+              <p className="mt-1 text-sm text-[var(--terminal-muted)]">이 덱에 묶인 카드 목록입니다.</p>
+            </div>
+            <Link className="text-sm text-[var(--terminal-soft)]" href="/cards/new">
+              카드 추가 →
+            </Link>
           </div>
 
           {cards.map((card) => (
-            <div key={card?.slug} className="terminal-frame p-5">
-              <div className="flex items-center justify-between text-xs text-[var(--terminal-muted)]">
-                <span>{card?.character}</span>
-                <span>{card?.type}</span>
+            <div key={card?.slug} className="terminal-frame p-4">
+              <div className="flex items-start justify-between gap-4 text-xs text-[var(--terminal-muted)]">
+                <span className="truncate">{card?.character}</span>
+                <span className="shrink-0 uppercase">{card?.type}</span>
               </div>
-              <Link className="mt-3 inline-flex text-lg font-semibold" href={`/cards/${card?.slug}`}>
-                {card?.title}
-              </Link>
-              {card?.summary && <p className="mt-2 text-sm leading-6 text-[var(--terminal-soft)]">{card.summary}</p>}
+              <div className="mt-3 flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <Link className="block truncate text-base font-semibold sm:text-lg" href={`/cards/${card?.slug}`}>
+                    {card?.title}
+                  </Link>
+                  {card?.summary && <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--terminal-soft)]">{card.summary}</p>}
+                </div>
+                <Link className="shrink-0 text-sm text-[var(--terminal-soft)]" href={`/cards/${card?.slug}`}>
+                  보기 →
+                </Link>
+              </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                {card?.tags.map((tag) => (
+                {card?.tags.slice(0, 4).map((tag) => (
                   <span key={tag} className="terminal-chip">
                     #{tag}
                   </span>
