@@ -4,6 +4,7 @@
 import { revalidatePath } from "next/cache";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 import { CardPayload } from "@/lib/card-form";
+import { insertMockCard, isMockWriteModeEnabled } from "@/lib/mock-db";
 
 function generateSlug(title: string): string {
   return title
@@ -14,14 +15,36 @@ function generateSlug(title: string): string {
 
 export async function createCard(payload: CardPayload) {
   try {
+    const slug = generateSlug(payload.title) + '-' + Date.now();
+
+    if (isMockWriteModeEnabled()) {
+      insertMockCard({
+        slug,
+        title: payload.title,
+        type: payload.type,
+        character: payload.character,
+        tags: payload.tags,
+        source_url: payload.source_url,
+      });
+
+      revalidatePath("/");
+      revalidatePath("/cards");
+
+      return {
+        success: true,
+        data: {
+          slug,
+          title: payload.title,
+        }
+      };
+    }
+
     if (!isSupabaseConfigured() || !supabase) {
       return {
         success: false,
         error: "Supabase not configured. Card creation is disabled in local mode."
       };
     }
-
-    const slug = generateSlug(payload.title) + '-' + Date.now();
 
     const { data, error } = await supabase
       .from("cards")

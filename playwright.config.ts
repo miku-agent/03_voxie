@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: "./e2e",
   timeout: 30_000,
   webServer: {
-    command: "pnpm exec next dev --port 3000",
+    command: "PLAYWRIGHT_WRITE_THROUGH_MOCK=1 pnpm exec next dev --port 3000",
     port: 3000,
     reuseExistingServer: !process.env.CI,
   },

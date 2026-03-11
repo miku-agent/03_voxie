@@ -1,5 +1,6 @@
 import seed from "@/data/seed.json";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
+import { isMockWriteModeEnabled, listMockCards } from "@/lib/mock-db";
 
 export type Card = {
   slug: string;
@@ -56,6 +57,7 @@ export const searchCards = (query: string, items: Card[] = cards) => {
 };
 
 export const listCards = async (): Promise<Card[]> => {
+  if (isMockWriteModeEnabled()) return listMockCards();
   if (!isSupabaseConfigured() || !supabase) return cards;
 
   const { data, error } = await supabase
@@ -72,6 +74,7 @@ export const listCards = async (): Promise<Card[]> => {
 };
 
 export const getCardBySlugAsync = async (slug: string): Promise<Card | undefined> => {
+  if (isMockWriteModeEnabled()) return getCardBySlug(slug, listMockCards());
   if (!isSupabaseConfigured() || !supabase) return getCardBySlug(slug);
 
   const { data, error } = await supabase
