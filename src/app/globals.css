@@ -66,6 +66,16 @@ select {
   border-radius: 0;
 }
 
+.auth-input {
+  border: 1px solid var(--terminal-border);
+  background: rgba(57, 197, 187, 0.04);
+  color: var(--terminal-fg);
+}
+
+.auth-input::placeholder {
+  color: var(--terminal-muted);
+}
+
 input,
 textarea,
 select,

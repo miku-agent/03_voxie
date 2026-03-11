@@ -1,8 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "./types";
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+export function getSupabaseEnv() {
+  return {
+    supabaseUrl: process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL,
+    supabaseAnonKey:
+      process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  };
+}
 
 class SupabaseClientError extends Error {
   constructor(message: string) {
@@ -12,6 +17,8 @@ class SupabaseClientError extends Error {
 }
 
 export function createSupabaseClient() {
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseEnv();
+
   if (!supabaseUrl || !supabaseAnonKey) {
     console.warn(
       "Supabase environment variables not configured. Using fallback mode with local data."

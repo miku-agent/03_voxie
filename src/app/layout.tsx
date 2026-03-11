@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import localFont from "next/font/local";
 import { getSiteUrl } from "@/lib/deck-share";
+import AuthStatus from "./AuthStatus";
 import "./globals.css";
 
 const galmuri = localFont({
@@ -63,6 +64,7 @@ export default function RootLayout({
                 <Link className="nav-link" href="/users/bini59">
                   프로필
                 </Link>
+                <AuthStatus />
               </nav>
             </div>
           </header>
