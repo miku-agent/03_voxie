@@ -77,6 +77,8 @@ describe("deck actions", () => {
     const result = await createDeck({
       name: "Classic Miku",
       description: "대표곡 모음",
+      intro: "초기 미쿠의 흐름을 읽는 덱",
+      curatorNote: "대표곡에서 감정선 확장으로 읽어주세요.",
       tags: ["classic", "miku"],
       cards: ["melt", "world-is-mine"],
     });
@@ -86,6 +88,8 @@ describe("deck actions", () => {
       slug: "classic-miku-1234567890",
       name: "Classic Miku",
       description: "대표곡 모음",
+      intro: "초기 미쿠의 흐름을 읽는 덱",
+      curator_note: "대표곡에서 감정선 확장으로 읽어주세요.",
       tags: ["classic", "miku"],
     });
     expect(deckCardsInsert).toHaveBeenCalledWith([
@@ -159,6 +163,8 @@ describe("deck actions", () => {
     const result = await updateDeck("classic-miku", {
       name: "Classic Miku Reloaded",
       description: "대표곡 업데이트",
+      intro: "도입부에서 시대의 기준점을 먼저 읽는 덱",
+      curatorNote: "대표곡에서 감정의 밀도로 넘어가도록 순서를 조정했어요.",
       tags: ["classic", "live", ""],
       cards: ["melt", "rolling-girl"],
     });
@@ -169,6 +175,8 @@ describe("deck actions", () => {
       expect.objectContaining({
         name: "Classic Miku Reloaded",
         description: "대표곡 업데이트",
+        intro: "도입부에서 시대의 기준점을 먼저 읽는 덱",
+        curator_note: "대표곡에서 감정의 밀도로 넘어가도록 순서를 조정했어요.",
         tags: ["classic", "live"],
       })
     );

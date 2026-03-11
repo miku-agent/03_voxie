@@ -72,9 +72,12 @@ export function updateMockDeck(slug: string, patch: Omit<Deck, "slug">) {
   if (index === -1) return null;
 
   db.decks[index] = {
+    ...db.decks[index],
     slug,
     name: patch.name,
     description: patch.description,
+    intro: patch.intro,
+    curatorNote: patch.curatorNote,
     tags: [...patch.tags],
     cards: [...patch.cards],
   };

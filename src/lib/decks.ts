@@ -3,22 +3,44 @@ import { deckDetails } from "@/data/deck-details";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 import { isMockWriteModeEnabled, listMockDecks } from "@/lib/mock-db";
 
+export type DeckCardNote = {
+  lead?: string;
+  note?: string;
+};
+
 export type Deck = {
   slug: string;
   name: string;
   description?: string;
+  intro?: string;
+  curatorNote?: string;
   tags: string[];
   cards: string[];
   shortPitch?: string;
-  curatorNote?: string;
+  introTitle?: string;
+  introBody?: string;
+  readingGuide?: string;
   featured?: boolean;
   authorHandle?: string;
   authorName?: string;
+  cardNotes?: Record<string, DeckCardNote>;
 };
 
 export const decks = (
   decksSeed as Array<
-    Omit<Deck, "shortPitch" | "curatorNote" | "featured" | "authorHandle" | "authorName">
+    Omit<
+      Deck,
+      | "intro"
+      | "curatorNote"
+      | "shortPitch"
+      | "introTitle"
+      | "introBody"
+      | "readingGuide"
+      | "featured"
+      | "authorHandle"
+      | "authorName"
+      | "cardNotes"
+    >
   >
 ).map((deck) => ({
   ...deck,
@@ -29,6 +51,8 @@ type SupabaseDeckRow = {
   slug: string;
   name: string;
   description: string | null;
+  intro: string | null;
+  curator_note: string | null;
   tags: string[] | null;
   deck_cards?:
     | Array<{
@@ -42,11 +66,13 @@ const enrichDeck = (deck: {
   slug: string;
   name: string;
   description?: string;
+  intro?: string;
+  curatorNote?: string;
   tags: string[];
   cards: string[];
 }): Deck => ({
-  ...deck,
   ...deckDetails[deck.slug],
+  ...deck,
 });
 
 const normalizeDeck = (deck: SupabaseDeckRow): Deck =>
@@ -54,6 +80,8 @@ const normalizeDeck = (deck: SupabaseDeckRow): Deck =>
     slug: deck.slug,
     name: deck.name,
     description: deck.description ?? undefined,
+    intro: deck.intro ?? undefined,
+    curatorNote: deck.curator_note ?? undefined,
     tags: deck.tags ?? [],
     cards: (deck.deck_cards ?? [])
       .sort((a, b) => a.position - b.position)
@@ -72,6 +100,7 @@ export const searchDecks = (query: string, items: Deck[] = decks) => {
     return (
       deck.name.toLowerCase().includes(normalized) ||
       (deck.description?.toLowerCase().includes(normalized) ?? false) ||
+      (deck.intro?.toLowerCase().includes(normalized) ?? false) ||
       (deck.shortPitch?.toLowerCase().includes(normalized) ?? false) ||
       (deck.authorName?.toLowerCase().includes(normalized) ?? false) ||
       (deck.authorHandle?.toLowerCase().includes(normalized) ?? false) ||
@@ -80,13 +109,16 @@ export const searchDecks = (query: string, items: Deck[] = decks) => {
   });
 };
 
+const DECK_SELECT =
+  "slug, name, description, intro, curator_note, tags, deck_cards(position, cards!inner(slug))";
+
 export const listDecks = async (): Promise<Deck[]> => {
   if (isMockWriteModeEnabled()) return listMockDecks().map(enrichDeck);
   if (!isSupabaseConfigured() || !supabase) return decks;
 
   const { data, error } = await supabase
     .from("decks")
-    .select("slug, name, description, tags, deck_cards(position, cards!inner(slug))")
+    .select(DECK_SELECT)
     .order("name", { ascending: true });
 
   if (error || !data) {
@@ -103,7 +135,7 @@ export const getDeckBySlugAsync = async (slug: string): Promise<Deck | undefined
 
   const { data, error } = await supabase
     .from("decks")
-    .select("slug, name, description, tags, deck_cards(position, cards!inner(slug))")
+    .select(DECK_SELECT)
     .eq("slug", slug)
     .maybeSingle();
 
