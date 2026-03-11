@@ -17,7 +17,7 @@ export default async function DeckDetailPage({ params }: Props) {
           <div className="terminal-shell px-6 py-10">
             <p className="text-sm text-[var(--terminal-muted)]">덱을 찾을 수 없어요.</p>
             <Link className="mt-6 inline-flex terminal-button" href="/decks">
-              [ 덱 목록으로 ]
+              덱 목록으로
             </Link>
           </div>
         </main>
@@ -29,26 +29,20 @@ export default async function DeckDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen text-white">
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
-        <header className="terminal-shell overflow-hidden">
-          <div className="terminal-titlebar">
-            <span>deck://{deck.slug}</span>
-            <span>{cards.length.toString().padStart(2, "0")} cards</span>
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+        <header className="terminal-shell p-5 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Link className="text-sm text-[var(--terminal-muted)]" href="/decks">
+              ← 덱 목록
+            </Link>
+            <Link className="terminal-button" href={`/decks/${deck.slug}/edit`}>
+              덱 수정
+            </Link>
           </div>
-          <div className="grid gap-6 px-5 py-6 sm:px-8 sm:py-8 md:grid-cols-[minmax(0,1fr)_260px]">
+
+          <div className="mt-4 grid gap-6 md:grid-cols-[minmax(0,1fr)_260px]">
             <div>
-              <div className="flex flex-wrap items-center gap-3">
-                <Link
-                  className="text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)] hover:text-[var(--terminal-fg)]"
-                  href="/decks"
-                >
-                  ← return --decks
-                </Link>
-                <Link className="terminal-button text-xs" href={`/decks/${deck.slug}/edit`}>
-                  [ edit deck ]
-                </Link>
-              </div>
-              <h1 className="mt-4 text-3xl font-semibold sm:text-4xl">{deck.name}</h1>
+              <h1 className="text-3xl font-semibold sm:text-4xl">{deck.name}</h1>
               {deck.description && (
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--terminal-soft)]">
                   {deck.description}
@@ -66,17 +60,17 @@ export default async function DeckDetailPage({ params }: Props) {
             <aside className="terminal-frame p-4">
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
-                  <span className="text-[var(--terminal-muted)]">cards</span>
+                  <span className="text-[var(--terminal-muted)]">카드 수</span>
                   <span>{cards.length}</span>
                 </div>
                 <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
-                  <span className="text-[var(--terminal-muted)]">tags</span>
+                  <span className="text-[var(--terminal-muted)]">태그 수</span>
                   <span>{deck.tags.length}</span>
                 </div>
                 {deck.featured && (
                   <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
-                    <span className="text-[var(--terminal-muted)]">featured</span>
-                    <span>yes</span>
+                    <span className="text-[var(--terminal-muted)]">추천 덱</span>
+                    <span>예</span>
                   </div>
                 )}
               </div>
@@ -86,43 +80,45 @@ export default async function DeckDetailPage({ params }: Props) {
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <article className="terminal-frame p-5 sm:p-6">
-            <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">why this deck exists</p>
-            <p className="mt-4 text-sm leading-7 text-[var(--terminal-fg)]">
+            <h2 className="text-lg font-semibold">요약</h2>
+            <p className="mt-4 text-sm leading-7 text-[var(--terminal-soft)]">
               {deck.shortPitch ?? "이 덱은 관련 카드들을 하나의 맥락으로 묶기 위한 큐레이션 단위예요."}
             </p>
 
             {deck.curatorNote && (
               <div className="mt-6 border border-[var(--terminal-border)] px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">curator note</p>
+                <p className="text-sm font-semibold text-[var(--terminal-fg)]">큐레이터 메모</p>
                 <p className="mt-3 text-sm leading-7 text-[var(--terminal-soft)]">{deck.curatorNote}</p>
               </div>
             )}
           </article>
 
           <aside className="terminal-frame p-5">
-            <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">deck preview</p>
+            <h2 className="text-lg font-semibold">미리 보기</h2>
             <div className="mt-4 space-y-3">
               {cards.slice(0, 3).map((card) => (
                 <div key={card?.slug} className="border border-[var(--terminal-border)] px-4 py-4">
                   <p className="text-sm font-semibold text-[var(--terminal-fg)]">{card?.title}</p>
-                  <p className="mt-1 text-xs leading-6 text-[var(--terminal-muted)]">{card?.summary}</p>
+                  <p className="mt-1 text-sm leading-6 text-[var(--terminal-muted)]">{card?.summary}</p>
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-sm leading-7 text-[var(--terminal-muted)]">
-              덱은 단순히 카드를 모아두는 박스가 아니라, 시대·감정·프로듀서·무대 맥락을 함께 읽게 해주는 큐레이션 단위예요.
-            </p>
           </aside>
         </section>
 
         <section className="mt-8 grid gap-4">
+          <div>
+            <h2 className="text-lg font-semibold">포함된 카드</h2>
+            <p className="mt-1 text-sm text-[var(--terminal-muted)]">이 덱에 묶인 카드 목록입니다.</p>
+          </div>
+
           {cards.map((card) => (
             <div key={card?.slug} className="terminal-frame p-5">
-              <div className="flex items-center justify-between text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">
+              <div className="flex items-center justify-between text-xs text-[var(--terminal-muted)]">
                 <span>{card?.character}</span>
                 <span>{card?.type}</span>
               </div>
-              <Link className="mt-3 inline-flex text-lg font-semibold hover:text-[var(--terminal-fg)]" href={`/cards/${card?.slug}`}>
+              <Link className="mt-3 inline-flex text-lg font-semibold" href={`/cards/${card?.slug}`}>
                 {card?.title}
               </Link>
               {card?.summary && <p className="mt-2 text-sm leading-6 text-[var(--terminal-soft)]">{card.summary}</p>}
