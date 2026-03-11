@@ -1,0 +1,51 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    steps:
+      - name: Ensure app directory
+        run: mkdir -p /opt/apps/03_voxie
+
+      - name: Sync repository
+        shell: bash
+        run: |
+          if [ ! -d "/opt/apps/03_voxie/.git" ]; then
+            git clone https://github.com/miku-agent/03_voxie.git /opt/apps/03_voxie
+          fi
+          cd /opt/apps/03_voxie
+          git fetch --all
+          git reset --hard origin/main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.3
+
+      - name: Install deps
+        working-directory: /opt/apps/03_voxie
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: /opt/apps/03_voxie
+        run: pnpm build
+
+      - name: Restart app with PM2
+        working-directory: /opt/apps/03_voxie
+        shell: bash
+        run: |
+          if pm2 describe 03_voxie > /dev/null; then
+            pm2 delete 03_voxie
+          fi
+          pm2 start "pnpm start -p 23200" --name 03_voxie
+          pm2 save
