@@ -1,7 +1,13 @@
 import Link from "next/link";
-import { decks } from "@/lib/decks";
+import { searchDecks } from "@/lib/decks";
 
-export default function DeckListPage() {
+export default function DeckListPage({
+  searchParams,
+}: {
+  searchParams?: { q?: string };
+}) {
+  const query = searchParams?.q ?? "";
+  const decks = searchDecks(query);
   return (
     <div className="min-h-screen bg-black text-white">
       <main className="mx-auto max-w-5xl px-6 py-12">
@@ -16,6 +22,21 @@ export default function DeckListPage() {
             </Link>
           </div>
         </header>
+
+        <section className="mb-6">
+          <form action="/decks" className="flex gap-2">
+            <input
+              type="text"
+              name="q"
+              defaultValue={query}
+              placeholder="search --decks"
+              className="w-full border border-[var(--terminal-border)] bg-black px-3 py-2 text-sm text-[var(--terminal-fg)]"
+            />
+            <button type="submit" className="terminal-button">
+              [ 검색 ]
+            </button>
+          </form>
+        </section>
 
         <section className="grid gap-4 md:grid-cols-2">
           {decks.map((deck) => (
