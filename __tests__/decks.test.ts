@@ -16,4 +16,11 @@ describe("decks library", () => {
     expect(deck?.authorHandle).toBe("bini59");
     expect(searchDecks("빈이", decks).map((item) => item.slug)).toContain("classic-miku");
   });
+
+  it("enriches decks with story metadata for readable detail pages", () => {
+    const deck = getDeckBySlug("classic-miku");
+    expect(deck?.introTitle).toContain("입문 서사");
+    expect(deck?.readingGuide).toContain("순서대로 읽으면");
+    expect(deck?.cardNotes?.melt?.lead).toBe("시작점");
+  });
 });

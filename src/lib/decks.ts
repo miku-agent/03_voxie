@@ -3,6 +3,11 @@ import { deckDetails } from "@/data/deck-details";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 import { isMockWriteModeEnabled, listMockDecks } from "@/lib/mock-db";
 
+export type DeckCardNote = {
+  lead?: string;
+  note?: string;
+};
+
 export type Deck = {
   slug: string;
   name: string;
@@ -10,15 +15,19 @@ export type Deck = {
   tags: string[];
   cards: string[];
   shortPitch?: string;
+  introTitle?: string;
+  introBody?: string;
+  readingGuide?: string;
   curatorNote?: string;
   featured?: boolean;
   authorHandle?: string;
   authorName?: string;
+  cardNotes?: Record<string, DeckCardNote>;
 };
 
 export const decks = (
   decksSeed as Array<
-    Omit<Deck, "shortPitch" | "curatorNote" | "featured" | "authorHandle" | "authorName">
+    Omit<Deck, "shortPitch" | "introTitle" | "introBody" | "readingGuide" | "curatorNote" | "featured" | "authorHandle" | "authorName" | "cardNotes">
   >
 ).map((deck) => ({
   ...deck,

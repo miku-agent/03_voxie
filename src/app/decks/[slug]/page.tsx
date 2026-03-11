@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getDeckBySlugAsync } from "@/lib/decks";
-import { getCardBySlugAsync } from "@/lib/cards";
+import { getCardBySlugAsync, type Card } from "@/lib/cards";
 import { getProfileHref } from "@/lib/profiles";
 
 type Props = {
@@ -29,11 +29,13 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
     );
   }
 
-  const cards = (await Promise.all(deck.cards.map((cardSlug) => getCardBySlugAsync(cardSlug)))).filter(Boolean);
+  const cards = (await Promise.all(deck.cards.map((cardSlug) => getCardBySlugAsync(cardSlug)))).filter(
+    (card): card is Card => Boolean(card),
+  );
 
   return (
     <div className="min-h-screen text-white">
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
         <header className="terminal-shell p-5 sm:p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <Link className="text-sm text-[var(--terminal-muted)]" href="/decks">
@@ -55,7 +57,7 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
             </div>
           )}
 
-          <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_260px] md:gap-6">
+          <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_280px] md:gap-6">
             <div>
               <div className="dense-meta">
                 <span>{cards.length} cards</span>
@@ -63,10 +65,15 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
                 {deck.featured && <span>featured deck</span>}
               </div>
               <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">{deck.name}</h1>
-              {deck.description && (
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--terminal-soft)]">
-                  {deck.description}
-                </p>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--terminal-soft)]">
+                {deck.shortPitch ?? deck.description ?? "이 덱은 관련 카드들을 하나의 흐름으로 읽기 위한 큐레이션 단위예요."}
+              </p>
+              {deck.introTitle && (
+                <div className="mt-5 border border-[var(--terminal-border)] bg-[rgba(57,197,187,0.04)] px-4 py-4 sm:px-5">
+                  <p className="text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">deck intro</p>
+                  <h2 className="mt-2 text-xl font-semibold">{deck.introTitle}</h2>
+                  {deck.introBody && <p className="mt-3 text-sm leading-7 text-[var(--terminal-soft)]">{deck.introBody}</p>}
+                </div>
               )}
               <div className="mt-4 flex flex-wrap gap-2">
                 {deck.tags.map((tag) => (
@@ -82,6 +89,11 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
                   </Link>
                 ) : (
                   <span className="inline-flex items-center text-sm text-[var(--terminal-muted)]">작성자 정보 없음</span>
+                )}
+                {cards.length > 0 && (
+                  <a className="terminal-button w-full sm:w-auto" href="#story-flow">
+                    흐름으로 읽기
+                  </a>
                 )}
               </div>
             </div>
@@ -113,6 +125,10 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
                     <span>예</span>
                   </div>
                 )}
+                <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                  <span className="text-[var(--terminal-muted)]">읽기 방식</span>
+                  <span>ordered story</span>
+                </div>
               </div>
             </aside>
           </div>
@@ -120,9 +136,9 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <article className="terminal-frame p-5 sm:p-6">
-            <h2 className="text-lg font-semibold">요약</h2>
+            <h2 className="text-lg font-semibold">읽는 가이드</h2>
             <p className="mt-4 text-sm leading-7 text-[var(--terminal-soft)]">
-              {deck.shortPitch ?? "이 덱은 관련 카드들을 하나의 맥락으로 묶기 위한 큐레이션 단위예요."}
+              {deck.readingGuide ?? "카드의 순서를 그대로 따라가며 읽으면 이 덱이 왜 이런 구성을 갖는지 더 잘 보입니다."}
             </p>
 
             {deck.curatorNote && (
@@ -135,69 +151,86 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
 
           <aside className="terminal-frame p-5">
             <div className="flex items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold">미리 보기</h2>
+              <h2 className="text-lg font-semibold">story map</h2>
               <Link href="/decks/new" className="text-sm text-[var(--terminal-soft)]">
                 새 덱 →
               </Link>
             </div>
             <div className="mt-4 space-y-3">
-              {cards.slice(0, 3).map((card) => (
-                <div key={card?.slug} className="border border-[var(--terminal-border)] px-4 py-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-[var(--terminal-fg)]">{card?.title}</p>
-                    <span className="text-xs uppercase text-[var(--terminal-muted)]">{card?.type}</span>
+              {cards.map((card, index) => {
+                const note = deck.cardNotes?.[card.slug];
+                return (
+                  <div key={card.slug} className="border border-[var(--terminal-border)] px-4 py-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-[var(--terminal-fg)]">{String(index + 1).padStart(2, "0")}. {card.title}</p>
+                      <span className="text-xs uppercase text-[var(--terminal-muted)]">{card.type}</span>
+                    </div>
+                    {note?.lead && <p className="mt-2 text-xs uppercase tracking-[0.12em] text-[var(--terminal-muted)]">{note.lead}</p>}
+                    <p className="mt-2 text-sm leading-6 text-[var(--terminal-muted)]">{note?.note ?? card.summary}</p>
                   </div>
-                  <p className="mt-1 text-sm leading-6 text-[var(--terminal-muted)]">{card?.summary}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </aside>
         </section>
 
-        <section className="mt-8 grid gap-3">
+        <section id="story-flow" className="mt-8 grid gap-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold">포함된 카드</h2>
-              <p className="mt-1 text-sm text-[var(--terminal-muted)]">이 덱에 묶인 카드 목록입니다.</p>
+              <h2 className="text-lg font-semibold">스토리 흐름</h2>
+              <p className="mt-1 text-sm text-[var(--terminal-muted)]">이 덱에 묶인 카드를 의도된 순서대로 읽는 흐름입니다.</p>
             </div>
             <Link className="text-sm text-[var(--terminal-soft)]" href="/cards/new">
               카드 추가 →
             </Link>
           </div>
 
-          {cards.map((card) => (
-            <div key={card?.slug} className="terminal-frame p-4">
-              <div className="flex items-start justify-between gap-4 text-xs text-[var(--terminal-muted)]">
-                <span className="truncate">{card?.character}</span>
-                <span className="shrink-0 uppercase">{card?.type}</span>
-              </div>
-              <div className="mt-3 min-w-0">
-                <Link className="block truncate text-base font-semibold sm:text-lg" href={`/cards/${card?.slug}`}>
-                  {card?.title}
-                </Link>
-                {card?.summary && <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--terminal-soft)]">{card.summary}</p>}
-              </div>
-              <div className="dense-meta mt-3">
-                {card?.producer && <span>{card.producer}</span>}
-                {card?.year && <span>{card.year}</span>}
-                {card?.authorName ? <span>by {card.authorName}</span> : <span>author unknown</span>}
-                <span>{card?.tags.length ?? 0} tags</span>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {card?.tags.slice(0, 4).map((tag) => (
-                  <span key={tag} className="terminal-chip">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-4 flex items-center justify-between gap-4 border-t border-[var(--terminal-border)] pt-3 text-sm">
-                <span className="text-[var(--terminal-muted)]">카드 상세 보기</span>
-                <Link className="text-[var(--terminal-soft)]" href={`/cards/${card?.slug}`}>
-                  열기 →
-                </Link>
-              </div>
-            </div>
-          ))}
+          {cards.map((card, index) => {
+            const note = deck.cardNotes?.[card.slug];
+            return (
+              <article key={card.slug} className="terminal-frame p-5 sm:p-6">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="dense-meta">
+                      <span>#{String(index + 1).padStart(2, "0")}</span>
+                      <span>{card.character}</span>
+                      <span className="uppercase">{card.type}</span>
+                      {card.year && <span>{card.year}</span>}
+                    </div>
+                    <h3 className="mt-3 text-xl font-semibold sm:text-2xl">
+                      <Link href={`/cards/${card.slug}`}>{card.title}</Link>
+                    </h3>
+                    {note?.lead && <p className="mt-3 text-xs uppercase tracking-[0.14em] text-[var(--terminal-muted)]">{note.lead}</p>}
+                    <p className="mt-3 text-sm leading-7 text-[var(--terminal-soft)]">
+                      {note?.note ?? card.summary ?? "이 카드에 대한 요약은 아직 없지만, 덱 안에서는 하나의 전환점 역할을 합니다."}
+                    </p>
+                    {card.summary && note?.note && (
+                      <p className="mt-3 text-sm leading-7 text-[var(--terminal-muted)]">카드 요약: {card.summary}</p>
+                    )}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {card.tags.slice(0, 4).map((tag) => (
+                        <span key={tag} className="terminal-chip">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <aside className="w-full max-w-sm border border-[var(--terminal-border)] px-4 py-4 lg:w-[280px]">
+                    <p className="text-sm font-semibold">카드 메타</p>
+                    <div className="mt-3 space-y-2 text-sm text-[var(--terminal-muted)]">
+                      {card.producer && <div>프로듀서: {card.producer}</div>}
+                      <div>작성자: {card.authorName ?? "unknown"}</div>
+                      <div>태그: {card.tags.length}</div>
+                    </div>
+                    <Link className="mt-4 inline-flex text-sm text-[var(--terminal-soft)]" href={`/cards/${card.slug}`}>
+                      카드 상세 보기 →
+                    </Link>
+                  </aside>
+                </div>
+              </article>
+            );
+          })}
         </section>
       </main>
     </div>
