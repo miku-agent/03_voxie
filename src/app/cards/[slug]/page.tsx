@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { getCardBySlug } from "@/lib/cards";
+import { getCardBySlugAsync } from "@/lib/cards";
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
-export default function CardDetail({ params }: Props) {
-  const card = getCardBySlug(params.slug);
+export default async function CardDetail({ params }: Props) {
+  const { slug } = await params;
+  const card = await getCardBySlugAsync(slug);
 
   if (!card) {
     return (

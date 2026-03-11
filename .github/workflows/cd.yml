@@ -36,6 +36,16 @@ jobs:
         working-directory: /Users/bini/apps/03_voxie
         run: pnpm install --frozen-lockfile
 
+      - name: Verify deployment env
+        working-directory: /Users/bini/apps/03_voxie
+        shell: bash
+        run: |
+          if [ ! -f ".env.local" ]; then
+            echo "Missing deployment env: /Users/bini/apps/03_voxie/.env.local"
+            echo "Create .env.local with SUPABASE_URL and SUPABASE_ANON_KEY before deploying."
+            exit 1
+          fi
+
       - name: Build
         working-directory: /Users/bini/apps/03_voxie
         run: pnpm build

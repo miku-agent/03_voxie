@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "./types";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
 class SupabaseClientError extends Error {
   constructor(message: string) {
@@ -32,7 +32,7 @@ export const supabase = createSupabaseClient();
 export function requireSupabaseClient() {
   if (!supabase) {
     throw new SupabaseClientError(
-      "Supabase client not initialized. Please configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables."
+      "Supabase client not initialized. Please configure SUPABASE_URL and SUPABASE_ANON_KEY environment variables."
     );
   }
   return supabase;

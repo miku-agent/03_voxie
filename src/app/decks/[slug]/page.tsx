@@ -1,13 +1,14 @@
 import Link from "next/link";
-import { getDeckBySlug } from "@/lib/decks";
-import { getCardBySlug } from "@/lib/cards";
+import { getDeckBySlugAsync } from "@/lib/decks";
+import { getCardBySlugAsync } from "@/lib/cards";
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
-export default function DeckDetailPage({ params }: Props) {
-  const deck = getDeckBySlug(params.slug);
+export default async function DeckDetailPage({ params }: Props) {
+  const { slug } = await params;
+  const deck = await getDeckBySlugAsync(slug);
 
   if (!deck) {
     return (
@@ -22,8 +23,7 @@ export default function DeckDetailPage({ params }: Props) {
     );
   }
 
-  const cards = deck.cards
-    .map((slug) => getCardBySlug(slug))
+  const cards = (await Promise.all(deck.cards.map((cardSlug) => getCardBySlugAsync(cardSlug))))
     .filter(Boolean);
 
   return (
