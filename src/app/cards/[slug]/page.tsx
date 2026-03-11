@@ -17,7 +17,7 @@ export default async function CardDetail({ params }: Props) {
           <div className="terminal-shell px-6 py-10">
             <p className="text-sm text-[var(--terminal-muted)]">카드를 찾을 수 없어요.</p>
             <Link className="mt-6 inline-flex terminal-button" href="/">
-              [ 목록으로 ]
+              목록으로
             </Link>
           </div>
         </main>
@@ -31,23 +31,16 @@ export default async function CardDetail({ params }: Props) {
 
   return (
     <div className="min-h-screen text-white">
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
-        <header className="terminal-shell overflow-hidden">
-          <div className="terminal-titlebar">
-            <span>card://{card.slug}</span>
-            <span>{card.type.toUpperCase()}</span>
-          </div>
-          <div className="grid gap-6 px-5 py-6 sm:px-8 sm:py-8 md:grid-cols-[minmax(0,1fr)_280px]">
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+        <header className="terminal-shell p-5 sm:p-6">
+          <Link className="text-sm text-[var(--terminal-muted)]" href="/">
+            ← 카드 목록
+          </Link>
+          <div className="mt-4 grid gap-6 md:grid-cols-[minmax(0,1fr)_280px]">
             <div>
-              <Link
-                className="text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)] hover:text-[var(--terminal-fg)]"
-                href="/"
-              >
-                ← return --cards
-              </Link>
-              <h1 className="mt-4 text-3xl font-semibold sm:text-4xl">{card.title}</h1>
+              <h1 className="text-3xl font-semibold sm:text-4xl">{card.title}</h1>
               {card.summary && (
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--terminal-soft)] sm:text-base">
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--terminal-soft)] sm:text-base">
                   {card.summary}
                 </p>
               )}
@@ -63,24 +56,24 @@ export default async function CardDetail({ params }: Props) {
             <aside className="terminal-frame p-4">
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
-                  <span className="text-[var(--terminal-muted)]">character</span>
+                  <span className="text-[var(--terminal-muted)]">캐릭터</span>
                   <span>{card.character}</span>
                 </div>
                 {card.producer && (
                   <div className="flex items-center justify-between gap-4 border border-[var(--terminal-border)] px-3 py-2">
-                    <span className="text-[var(--terminal-muted)]">producer</span>
+                    <span className="text-[var(--terminal-muted)]">프로듀서</span>
                     <span className="text-right">{card.producer}</span>
                   </div>
                 )}
                 {card.year && (
                   <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
-                    <span className="text-[var(--terminal-muted)]">year</span>
+                    <span className="text-[var(--terminal-muted)]">연도</span>
                     <span>{card.year}</span>
                   </div>
                 )}
                 {card.era && (
                   <div className="flex items-center justify-between gap-4 border border-[var(--terminal-border)] px-3 py-2">
-                    <span className="text-[var(--terminal-muted)]">era</span>
+                    <span className="text-[var(--terminal-muted)]">시기</span>
                     <span className="text-right">{card.era}</span>
                   </div>
                 )}
@@ -91,7 +84,7 @@ export default async function CardDetail({ params }: Props) {
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <article className="terminal-frame p-5 sm:p-6">
-            <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">archive note</p>
+            <h2 className="text-lg font-semibold">설명</h2>
             {card.description ? (
               <div className="mt-4 space-y-4 text-sm leading-7 text-[var(--terminal-soft)]">
                 {card.description.map((paragraph) => (
@@ -104,13 +97,13 @@ export default async function CardDetail({ params }: Props) {
 
             {card.whyItMatters && (
               <div className="mt-6 border border-[var(--terminal-border)] px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">why this card matters</p>
-                <p className="mt-3 text-sm leading-7 text-[var(--terminal-fg)]">{card.whyItMatters}</p>
+                <p className="text-sm font-semibold text-[var(--terminal-fg)]">왜 이 카드가 중요한가</p>
+                <p className="mt-3 text-sm leading-7 text-[var(--terminal-soft)]">{card.whyItMatters}</p>
               </div>
             )}
 
             <div className="mt-6">
-              <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">mood / usage</p>
+              <p className="text-sm font-semibold text-[var(--terminal-fg)]">무드</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {(card.mood ?? card.tags).map((item) => (
                   <span key={item} className="terminal-chip" data-active="true">
@@ -123,38 +116,27 @@ export default async function CardDetail({ params }: Props) {
 
           <aside className="space-y-6">
             <section className="terminal-frame p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">signal preview</p>
-              <div className="mt-4 flex aspect-[4/3] items-end border border-[var(--terminal-border)] bg-[radial-gradient(circle_at_top,rgba(57,197,187,0.28)_0%,rgba(8,17,29,0.95)_55%,rgba(3,5,13,1)_100%)] p-5">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-soft)]">{card.character}</p>
-                  <p className="mt-2 text-2xl font-semibold text-[var(--terminal-fg)]">{card.title}</p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--terminal-muted)]">{card.summary}</p>
-                </div>
-              </div>
-            </section>
-
-            <section className="terminal-frame p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">listen / reference</p>
+              <h2 className="text-lg font-semibold">바로 가기</h2>
               <div className="mt-4 flex flex-col gap-3 text-sm">
                 {links.source && (
                   <a href={links.source} target="_blank" rel="noreferrer" className="terminal-button text-center">
-                    [ reference source ]
+                    원문 보기
                   </a>
                 )}
                 <a href={links.youtubeSearch} target="_blank" rel="noreferrer" className="terminal-button text-center">
-                  [ search on youtube ]
+                  YouTube 검색
                 </a>
                 <a href={links.niconicoSearch} target="_blank" rel="noreferrer" className="terminal-button text-center">
-                  [ search on niconico ]
+                  니코동 검색
                 </a>
               </div>
             </section>
 
             <section className="terminal-frame p-5">
               <div className="flex items-center justify-between gap-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-[var(--terminal-accent)]">included in decks</p>
-                <Link href="/decks" className="text-xs text-[var(--terminal-fg)]">
-                  모든 덱 보기 →
+                <h2 className="text-lg font-semibold">포함된 덱</h2>
+                <Link href="/decks" className="text-sm text-[var(--terminal-soft)]">
+                  전체 보기 →
                 </Link>
               </div>
               <div className="mt-4 space-y-3">
@@ -162,7 +144,7 @@ export default async function CardDetail({ params }: Props) {
                   relatedDecks.map((deck) => (
                     <Link key={deck.slug} href={`/decks/${deck.slug}`} className="block border border-[var(--terminal-border)] px-4 py-4">
                       <p className="text-sm font-semibold">{deck.name}</p>
-                      <p className="mt-1 text-xs leading-6 text-[var(--terminal-muted)]">
+                      <p className="mt-1 text-sm leading-6 text-[var(--terminal-muted)]">
                         {deck.shortPitch ?? deck.description}
                       </p>
                     </Link>

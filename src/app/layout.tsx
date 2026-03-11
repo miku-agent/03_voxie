@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -18,42 +19,45 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body className={`${jetbrainsMono.variable} antialiased`}>
-        <div className="relative z-2 border-b border-[var(--terminal-border)] bg-[rgba(5,8,22,0.82)] backdrop-blur-sm">
-          <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.28em] text-[var(--terminal-accent)]">
-                Voxie // Miku Console
-              </p>
-              <p className="mt-1 text-xs text-[var(--terminal-muted)]">
-                vocaloid archive interface [online]
-              </p>
+        <div className="site-shell">
+          <header className="border-b border-[var(--terminal-border)] bg-[rgba(5,8,22,0.88)] backdrop-blur-sm">
+            <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
+              <div>
+                <Link href="/" className="text-lg font-semibold text-[var(--terminal-fg)] hover:text-[var(--terminal-fg)]">
+                  Voxie
+                </Link>
+                <p className="mt-1 text-sm text-[var(--terminal-muted)]">
+                  보컬로이드 카드를 모으고 덱으로 정리하는 아카이브
+                </p>
+              </div>
+
+              <nav className="flex flex-wrap items-center gap-2 text-sm text-[var(--terminal-soft)]">
+                <Link className="nav-link" href="/">
+                  카드
+                </Link>
+                <Link className="nav-link" href="/decks">
+                  덱
+                </Link>
+                <Link className="nav-link" href="/cards/new">
+                  카드 추가
+                </Link>
+                <Link className="nav-link" href="/decks/new">
+                  덱 추가
+                </Link>
+              </nav>
             </div>
-            <nav className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.14em] text-[var(--terminal-muted)]">
-              <a className="terminal-chip" href="/">
-                cards
-              </a>
-              <a className="terminal-chip" href="/decks">
-                decks
-              </a>
-              <a className="terminal-chip" href="/cards/new">
-                create-card
-              </a>
-              <a className="terminal-chip" href="/decks/new">
-                create-deck
-              </a>
-            </nav>
-          </div>
+          </header>
+
+          {children}
+
+          <footer className="mx-auto max-w-6xl px-4 pb-8 pt-2 text-sm text-[var(--terminal-muted)] sm:px-6">
+            <div className="border-t border-[var(--terminal-border)] pt-4">
+              Voxie archive · cards / decks / notes
+            </div>
+          </footer>
         </div>
-
-        {children}
-
-        <footer className="mx-auto max-w-6xl px-4 pb-8 pt-2 text-xs uppercase tracking-[0.14em] text-[var(--terminal-muted)] sm:px-6">
-          <div className="border-t border-[var(--terminal-border)] pt-4">
-            voxie://archive ready · theme=miku-phosphor · status [stable]
-          </div>
-        </footer>
       </body>
     </html>
   );
