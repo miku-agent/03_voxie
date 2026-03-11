@@ -7,11 +7,11 @@ export default function DeckListPage() {
       <main className="mx-auto max-w-5xl px-6 py-12">
         <header className="mb-10">
           <h1 className="text-3xl font-semibold">덱</h1>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-[var(--terminal-muted)]">
             카드로 묶은 플레이리스트
           </p>
           <div className="mt-4">
-            <Link className="text-emerald-300" href="/decks/new">
+            <Link className="text-[var(--terminal-fg)]" href="/decks/new">
               덱 생성 →
             </Link>
           </div>
@@ -21,19 +21,19 @@ export default function DeckListPage() {
           {decks.map((deck) => (
             <article
               key={deck.slug}
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-5"
+              className="terminal-frame p-5"
             >
-              <div className="flex items-center justify-between text-xs text-zinc-500">
+              <div className="flex items-center justify-between text-xs text-[var(--terminal-muted)]">
                 <span>{deck.cards.length} cards</span>
                 <span className="uppercase">deck</span>
               </div>
               <h2 className="mt-3 text-lg font-semibold">
-                <Link className="hover:text-emerald-300" href={`/decks/${deck.slug}`}>
+                <Link className="hover:text-[var(--terminal-fg)]" href={`/decks/${deck.slug}`}>
                   {deck.name}
                 </Link>
               </h2>
               {deck.description && (
-                <p className="mt-2 text-sm text-zinc-400">
+                <p className="mt-2 text-sm text-[var(--terminal-muted)]">
                   {deck.description}
                 </p>
               )}
@@ -41,7 +41,7 @@ export default function DeckListPage() {
                 {deck.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full border border-zinc-800 px-2 py-0.5 text-[10px] text-zinc-400"
+                    className="border border-[var(--terminal-border)] px-2 py-0.5 text-[10px] text-[var(--terminal-muted)]"
                   >
                     #{tag}
                   </span>

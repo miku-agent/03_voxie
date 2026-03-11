@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --terminal-bg: #0a0a0a;
+  --terminal-fg: #33ff00;
+  --terminal-amber: #ffb000;
+  --terminal-muted: #1f521f;
+  --terminal-error: #ff3333;
+  --terminal-border: #1f521f;
+  --terminal-glow: rgba(51, 255, 0, 0.5);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--terminal-bg);
+  --color-foreground: var(--terminal-fg);
+  --font-sans: var(--font-terminal);
+  --font-mono: var(--font-terminal);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--terminal-bg);
+  color: var(--terminal-fg);
+  font-family: var(--font-terminal), ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  text-shadow: 0 0 5px var(--terminal-glow);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--terminal-amber);
+}
+
+::selection {
+  background: var(--terminal-fg);
+  color: #0a0a0a;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+main,
+section,
+article,
+header,
+footer {
+  position: relative;
+  z-index: 2;
+}
+
+.terminal-frame {
+  border: 1px solid var(--terminal-border);
+  background: #050505;
+}
+
+.terminal-button {
+  border: 1px solid var(--terminal-fg);
+  color: var(--terminal-fg);
+  padding: 0.5rem 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.terminal-button:hover {
+  background: var(--terminal-fg);
+  color: #0a0a0a;
+}
+
+.cursor-blink {
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to {
+    opacity: 0;
+  }
 }

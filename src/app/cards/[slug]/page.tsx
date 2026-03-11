@@ -12,8 +12,8 @@ export default function CardDetail({ params }: Props) {
     return (
       <div className="min-h-screen bg-black text-white">
         <main className="mx-auto max-w-3xl px-6 py-12">
-          <p className="text-sm text-zinc-400">카드를 찾을 수 없어요.</p>
-          <Link className="mt-6 inline-flex text-emerald-300" href="/">
+          <p className="text-sm text-[var(--terminal-muted)]">카드를 찾을 수 없어요.</p>
+          <Link className="mt-6 inline-flex text-[var(--terminal-fg)]" href="/">
             ← 목록으로
           </Link>
         </main>
@@ -24,12 +24,12 @@ export default function CardDetail({ params }: Props) {
   return (
     <div className="min-h-screen bg-black text-white">
       <main className="mx-auto max-w-4xl px-6 py-12">
-        <Link className="text-sm text-emerald-300" href="/">
+        <Link className="text-sm text-[var(--terminal-fg)]" href="/">
           ← 목록으로
         </Link>
 
-        <article className="mt-8 rounded-xl border border-zinc-800 bg-zinc-950 p-6">
-          <div className="flex items-center justify-between text-xs text-zinc-500">
+        <article className="mt-8 terminal-frame p-6">
+          <div className="flex items-center justify-between text-xs text-[var(--terminal-muted)]">
             <span>{card.character}</span>
             <span className="uppercase">{card.type}</span>
           </div>
@@ -39,7 +39,7 @@ export default function CardDetail({ params }: Props) {
             {card.tags.map((item) => (
               <span
                 key={item}
-                className="rounded-full border border-zinc-800 px-2 py-0.5 text-[10px] text-zinc-400"
+                className="border border-[var(--terminal-border)] px-2 py-0.5 text-[10px] text-[var(--terminal-muted)]"
               >
                 #{item}
               </span>
@@ -49,7 +49,7 @@ export default function CardDetail({ params }: Props) {
           {card.source_url && (
             <a
               href={card.source_url}
-              className="mt-6 inline-flex text-xs text-emerald-300"
+              className="mt-6 inline-flex text-xs text-[var(--terminal-fg)]"
               target="_blank"
               rel="noreferrer"
             >
