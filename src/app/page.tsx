@@ -25,17 +25,20 @@ export default async function Home({ searchParams }: Props) {
         <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
           <div className="terminal-shell p-5 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-semibold sm:text-3xl">카드 아카이브</h1>
-                <p className="mt-2 text-sm leading-6 text-[var(--terminal-muted)]">
-                  곡, 장면, 감정선을 카드로 남기고 덱으로 묶어 정리합니다.
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-[0.16em] text-[var(--terminal-muted)]">
+                  Voxie archive
+                </p>
+                <h1 className="mt-3 text-2xl font-semibold sm:text-3xl">카드 아카이브</h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--terminal-muted)]">
+                  곡, 장면, 감정선을 카드로 남기고 덱으로 묶어 정리합니다. 빠르게 추가하고, 나중에 큐레이션처럼 다시 엮을 수 있어요.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Link className="terminal-button" href="/cards/new">
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
+                <Link className="terminal-button w-full sm:w-auto" href="/cards/new">
                   카드 추가
                 </Link>
-                <Link className="terminal-button" href="/decks/new">
+                <Link className="terminal-button w-full sm:w-auto" href="/decks/new">
                   덱 추가
                 </Link>
               </div>
@@ -49,10 +52,20 @@ export default async function Home({ searchParams }: Props) {
                 placeholder="곡, 캐릭터, 프로듀서 검색"
                 className="w-full border border-[var(--terminal-border)] bg-[var(--terminal-bg)] px-3 py-3 text-sm text-[var(--terminal-fg)]"
               />
-              <button type="submit" className="terminal-button sm:min-w-32">
+              <button type="submit" className="terminal-button w-full sm:min-w-32 sm:w-auto">
                 검색
               </button>
             </form>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--terminal-muted)]">
+              <span>{cards.length}개 표시 중</span>
+              {(query || tag) && <span>· 현재 필터 적용됨</span>}
+              {(query || tag) && (
+                <Link href="/" className="text-[var(--terminal-soft)] underline-offset-4 hover:underline">
+                  초기화
+                </Link>
+              )}
+            </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
@@ -77,7 +90,7 @@ export default async function Home({ searchParams }: Props) {
             </div>
           </div>
 
-          <aside className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+          <aside className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
             <div className="terminal-frame p-4">
               <p className="text-xs text-[var(--terminal-muted)]">카드</p>
               <p className="mt-2 text-2xl font-semibold">{allCards.length}</p>
@@ -106,11 +119,11 @@ export default async function Home({ searchParams }: Props) {
                 전체 덱 보기 →
               </Link>
             </div>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {featuredDecks.map((deck) => (
-                <Link key={deck.slug} href={`/decks/${deck.slug}`} className="terminal-frame block p-5">
+                <Link key={deck.slug} href={`/decks/${deck.slug}`} className="terminal-frame block p-4 sm:p-5">
                   <div className="flex items-center justify-between gap-4 text-xs text-[var(--terminal-muted)]">
-                    <span>{deck.name}</span>
+                    <span className="truncate">{deck.name}</span>
                     <span>{deck.cards.length} cards</span>
                   </div>
                   <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--terminal-soft)]">
@@ -149,9 +162,12 @@ export default async function Home({ searchParams }: Props) {
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--terminal-muted)]">
                   다른 태그를 선택하거나 검색어를 줄여보세요. 필요하면 새 카드를 추가해 아카이브를 채울 수 있어요.
                 </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link className="terminal-button" href={tag ? "/" : "/cards/new"}>
-                    {tag ? "필터 초기화" : "카드 추가"}
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <Link className="terminal-button w-full sm:w-auto" href="/">
+                    필터 초기화
+                  </Link>
+                  <Link className="terminal-button w-full sm:w-auto" href="/cards/new">
+                    카드 추가
                   </Link>
                 </div>
               </article>
@@ -162,20 +178,15 @@ export default async function Home({ searchParams }: Props) {
                     <span className="truncate">{card.character}</span>
                     <span className="shrink-0 uppercase">{card.type}</span>
                   </div>
-                  <div className="mt-3 flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <h3 className="truncate text-base font-semibold sm:text-lg">
-                        <Link href={`/cards/${card.slug}`}>{card.title}</Link>
-                      </h3>
-                      {card.summary && (
-                        <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--terminal-soft)]">
-                          {card.summary}
-                        </p>
-                      )}
-                    </div>
-                    <Link href={`/cards/${card.slug}`} className="shrink-0 text-sm text-[var(--terminal-soft)]">
-                      보기 →
-                    </Link>
+                  <div className="mt-3 min-w-0">
+                    <h3 className="truncate text-base font-semibold sm:text-lg">
+                      <Link href={`/cards/${card.slug}`}>{card.title}</Link>
+                    </h3>
+                    {card.summary && (
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--terminal-soft)]">
+                        {card.summary}
+                      </p>
+                    )}
                   </div>
                   <div className="dense-meta mt-3">
                     {card.producer && <span>{card.producer}</span>}
@@ -188,6 +199,12 @@ export default async function Home({ searchParams }: Props) {
                         #{item}
                       </span>
                     ))}
+                  </div>
+                  <div className="mt-4 flex items-center justify-between gap-4 border-t border-[var(--terminal-border)] pt-3 text-sm">
+                    <span className="text-[var(--terminal-muted)]">상세 정보 보기</span>
+                    <Link href={`/cards/${card.slug}`} className="text-[var(--terminal-soft)]">
+                      열기 →
+                    </Link>
                   </div>
                 </article>
               ))
