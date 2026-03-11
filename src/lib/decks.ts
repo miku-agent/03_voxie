@@ -1,4 +1,5 @@
 import decksSeed from "@/data/decks.json";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 
 export type Deck = {
   slug: string;
@@ -10,18 +11,77 @@ export type Deck = {
 
 export const decks = decksSeed as Deck[];
 
-export const getDeckBySlug = (slug: string) =>
-  decks.find((deck) => deck.slug === slug);
+type SupabaseDeckRow = {
+  slug: string;
+  name: string;
+  description: string | null;
+  tags: string[] | null;
+  deck_cards?: Array<{
+    position: number;
+    cards: { slug: string } | null;
+  }> | null;
+};
 
-export const searchDecks = (query: string) => {
+const normalizeDeck = (deck: SupabaseDeckRow): Deck => ({
+  slug: deck.slug,
+  name: deck.name,
+  description: deck.description ?? undefined,
+  tags: deck.tags ?? [],
+  cards: (deck.deck_cards ?? [])
+    .sort((a, b) => a.position - b.position)
+    .map((item) => item.cards?.slug)
+    .filter((slug): slug is string => Boolean(slug)),
+});
+
+export const getDeckBySlug = (slug: string, items: Deck[] = decks) =>
+  items.find((deck) => deck.slug === slug);
+
+export const searchDecks = (query: string, items: Deck[] = decks) => {
   const normalized = query.trim().toLowerCase();
-  if (!normalized) return decks;
+  if (!normalized) return items;
 
-  return decks.filter((deck) => {
+  return items.filter((deck) => {
     return (
       deck.name.toLowerCase().includes(normalized) ||
       (deck.description?.toLowerCase().includes(normalized) ?? false) ||
       deck.tags.some((tag) => tag.toLowerCase().includes(normalized))
     );
   });
+};
+
+export const listDecks = async (): Promise<Deck[]> => {
+  if (!isSupabaseConfigured() || !supabase) return decks;
+
+  const { data, error } = await supabase
+    .from("decks")
+    .select(
+      "slug, name, description, tags, deck_cards(position, cards!inner(slug))"
+    )
+    .order("name", { ascending: true });
+
+  if (error || !data) {
+    console.warn("Falling back to local decks seed:", error?.message);
+    return decks;
+  }
+
+  return (data as unknown as SupabaseDeckRow[]).map(normalizeDeck);
+};
+
+export const getDeckBySlugAsync = async (slug: string): Promise<Deck | undefined> => {
+  if (!isSupabaseConfigured() || !supabase) return getDeckBySlug(slug);
+
+  const { data, error } = await supabase
+    .from("decks")
+    .select(
+      "slug, name, description, tags, deck_cards(position, cards!inner(slug))"
+    )
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.warn("Falling back to local deck seed:", error.message);
+    return getDeckBySlug(slug);
+  }
+
+  return normalizeDeck(data as unknown as SupabaseDeckRow);
 };

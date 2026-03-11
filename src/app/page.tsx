@@ -1,17 +1,19 @@
 import Link from "next/link";
-import { filterCards, listTags, searchCards } from "@/lib/cards";
+import { filterCards, listCards, listTags, searchCards } from "@/lib/cards";
 
 type Props = {
-  searchParams?: { tag?: string; q?: string };
+  searchParams?: Promise<{ tag?: string; q?: string }>;
 };
 
-export default function Home({ searchParams }: Props) {
-  const tag = searchParams?.tag;
-  const query = searchParams?.q ?? "";
-  const cards = filterCards(tag).filter((card) =>
-    searchCards(query).some((matched) => matched.slug === card.slug)
+export default async function Home({ searchParams }: Props) {
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const tag = resolvedSearchParams.tag;
+  const query = resolvedSearchParams.q ?? "";
+  const allCards = await listCards();
+  const cards = filterCards(tag, allCards).filter((card) =>
+    searchCards(query, allCards).some((matched) => matched.slug === card.slug)
   );
-  const tags = listTags();
+  const tags = listTags(allCards);
 
   return (
     <div className="min-h-screen bg-black text-white">

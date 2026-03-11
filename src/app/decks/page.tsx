@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { searchDecks } from "@/lib/decks";
+import { listDecks, searchDecks } from "@/lib/decks";
 
-export default function DeckListPage({
+export default async function DeckListPage({
   searchParams,
 }: {
-  searchParams?: { q?: string };
+  searchParams?: Promise<{ q?: string }>;
 }) {
-  const query = searchParams?.q ?? "";
-  const decks = searchDecks(query);
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const query = resolvedSearchParams.q ?? "";
+  const allDecks = await listDecks();
+  const decks = searchDecks(query, allDecks);
   return (
     <div className="min-h-screen bg-black text-white">
       <main className="mx-auto max-w-5xl px-6 py-12">
