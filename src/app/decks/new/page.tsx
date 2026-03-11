@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { cards } from "@/lib/cards";
 import {
   buildDeckPayload,
   DeckFormInput,
   validateDeckPayload,
 } from "@/lib/deck-form";
+import { createDeck } from "@/lib/actions/decks";
 
 const initialState: DeckFormInput = {
   name: "",
@@ -17,9 +19,11 @@ const initialState: DeckFormInput = {
 };
 
 export default function DeckCreatePage() {
+  const router = useRouter();
   const [form, setForm] = useState<DeckFormInput>(initialState);
   const [errors, setErrors] = useState<string[]>([]);
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const sortedCards = useMemo(
     () => [...cards].sort((a, b) => a.title.localeCompare(b.title)),
@@ -29,6 +33,7 @@ export default function DeckCreatePage() {
   const onChange = (key: keyof DeckFormInput) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [key]: event.target.value }));
+      setSubmitError(null);
     };
 
   const toggleCard = (slug: string) => {
@@ -43,13 +48,30 @@ export default function DeckCreatePage() {
     });
   };
 
-  const onSubmit = (event: React.FormEvent) => {
+  const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const payload = buildDeckPayload(form);
     const missing = validateDeckPayload(payload);
     setErrors(missing);
+
     if (missing.length === 0) {
-      setSubmitted(true);
+      setIsSubmitting(true);
+      setSubmitError(null);
+
+      try {
+        const result = await createDeck(payload);
+
+        if (result.success && result.data) {
+          router.push(`/decks/${result.data.slug}`);
+        } else {
+          setSubmitError(result.error || "Failed to create deck");
+        }
+      } catch (error) {
+        console.error("Failed to create deck:", error);
+        setSubmitError("An unexpected error occurred");
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -127,12 +149,16 @@ export default function DeckCreatePage() {
             )}
           </div>
 
-          <button type="submit" className="terminal-button">
-            [ 저장 시뮬레이션 ]
+          <button
+            type="submit"
+            className="terminal-button disabled:opacity-50"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "[ 저장 중... ]" : "[ 덱 만들기 ]"}
           </button>
 
-          {submitted && (
-            <p className="text-xs text-[var(--terminal-fg)]">입력 값이 유효해요!</p>
+          {submitError && (
+            <p className="text-xs text-[var(--terminal-error)]">{submitError}</p>
           )}
         </form>
       </main>

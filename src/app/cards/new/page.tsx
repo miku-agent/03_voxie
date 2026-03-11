@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   buildCardPayload,
   CardFormInput,
   validateCardPayload,
 } from "@/lib/card-form";
+import { createCard } from "@/lib/actions/cards";
 
 const initialState: CardFormInput = {
   title: "",
@@ -17,22 +19,42 @@ const initialState: CardFormInput = {
 };
 
 export default function CardCreatePage() {
+  const router = useRouter();
   const [form, setForm] = useState<CardFormInput>(initialState);
   const [errors, setErrors] = useState<string[]>([]);
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const onChange = (key: keyof CardFormInput) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [key]: event.target.value }));
+      setSubmitError(null);
     };
 
-  const onSubmit = (event: React.FormEvent) => {
+  const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const payload = buildCardPayload(form);
     const missing = validateCardPayload(payload);
     setErrors(missing);
+
     if (missing.length === 0) {
-      setSubmitted(true);
+      setIsSubmitting(true);
+      setSubmitError(null);
+
+      try {
+        const result = await createCard(payload);
+
+        if (result.success) {
+          router.push('/');
+        } else {
+          setSubmitError(result.error || "Failed to create card");
+        }
+      } catch (error) {
+        console.error("Failed to create card:", error);
+        setSubmitError("An unexpected error occurred");
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -111,12 +133,16 @@ export default function CardCreatePage() {
             />
           </div>
 
-          <button type="submit" className="terminal-button">
-            [ 저장 시뮬레이션 ]
+          <button
+            type="submit"
+            className="terminal-button disabled:opacity-50"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "[ 저장 중... ]" : "[ 카드 만들기 ]"}
           </button>
 
-          {submitted && (
-            <p className="text-xs text-[var(--terminal-fg)]">입력 값이 유효해요!</p>
+          {submitError && (
+            <p className="text-xs text-[var(--terminal-error)]">{submitError}</p>
           )}
         </form>
       </main>

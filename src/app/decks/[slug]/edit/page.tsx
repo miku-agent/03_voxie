@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { cards as allCards } from "@/lib/cards";
 import { getDeckBySlug } from "@/lib/decks";
@@ -8,8 +9,10 @@ import {
   buildDeckUpdatePayload,
   validateDeckUpdatePayload,
 } from "@/lib/deck-edit";
+import { updateDeck } from "@/lib/actions/decks";
 
 export default function DeckEditPage({ params }: { params: { slug: string } }) {
+  const router = useRouter();
   const deck = getDeckBySlug(params.slug);
 
   const [name, setName] = useState(deck?.name ?? "");
@@ -17,7 +20,8 @@ export default function DeckEditPage({ params }: { params: { slug: string } }) {
   const [tags, setTags] = useState(deck?.tags ?? []);
   const [selectedCards, setSelectedCards] = useState(deck?.cards ?? []);
   const [errors, setErrors] = useState<string[]>([]);
-  const [saved, setSaved] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const sortedCards = useMemo(
     () => [...allCards].sort((a, b) => a.title.localeCompare(b.title)),
@@ -43,17 +47,37 @@ export default function DeckEditPage({ params }: { params: { slug: string } }) {
     );
   };
 
-  const onSubmit = (event: React.FormEvent) => {
+  const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const payload = buildDeckUpdatePayload({
+    const input = {
       name,
       description,
       tags,
       cards: selectedCards,
-    });
+    };
+    const payload = buildDeckUpdatePayload(input);
     const nextErrors = validateDeckUpdatePayload(payload);
     setErrors(nextErrors);
-    setSaved(nextErrors.length === 0);
+
+    if (nextErrors.length === 0) {
+      setIsSubmitting(true);
+      setSubmitError(null);
+
+      try {
+        const result = await updateDeck(params.slug, input);
+
+        if (result.success) {
+          router.push(`/decks/${params.slug}`);
+        } else {
+          setSubmitError(result.error || "Failed to update deck");
+        }
+      } catch (error) {
+        console.error("Failed to update deck:", error);
+        setSubmitError("An unexpected error occurred");
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
   };
 
   return (
@@ -141,12 +165,16 @@ export default function DeckEditPage({ params }: { params: { slug: string } }) {
             )}
           </div>
 
-          <button type="submit" className="terminal-button">
-            [ 저장 시뮬레이션 ]
+          <button
+            type="submit"
+            className="terminal-button disabled:opacity-50"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "[ 저장 중... ]" : "[ 변경사항 저장 ]"}
           </button>
 
-          {saved && (
-            <p className="text-xs text-[var(--terminal-fg)]">덱 편집 입력 값이 유효해요!</p>
+          {submitError && (
+            <p className="text-xs text-[var(--terminal-error)]">{submitError}</p>
           )}
         </form>
       </main>
