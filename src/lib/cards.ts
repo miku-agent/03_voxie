@@ -24,3 +24,16 @@ export const filterCards = (tag?: string) => {
 
 export const getCardBySlug = (slug: string) =>
   cards.find((card) => card.slug === slug);
+
+export const searchCards = (query: string) => {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return cards;
+
+  return cards.filter((card) => {
+    return (
+      card.title.toLowerCase().includes(normalized) ||
+      card.character.toLowerCase().includes(normalized) ||
+      card.tags.some((tag) => tag.toLowerCase().includes(normalized))
+    );
+  });
+};

@@ -1,13 +1,16 @@
 import Link from "next/link";
-import { filterCards, listTags } from "@/lib/cards";
+import { filterCards, listTags, searchCards } from "@/lib/cards";
 
 type Props = {
-  searchParams?: { tag?: string };
+  searchParams?: { tag?: string; q?: string };
 };
 
 export default function Home({ searchParams }: Props) {
   const tag = searchParams?.tag;
-  const cards = filterCards(tag);
+  const query = searchParams?.q ?? "";
+  const cards = filterCards(tag).filter((card) =>
+    searchCards(query).some((matched) => matched.slug === card.slug)
+  );
   const tags = listTags();
 
   return (
@@ -28,10 +31,23 @@ export default function Home({ searchParams }: Props) {
           </div>
         </header>
 
-        <section className="mb-8">
+        <section className="mb-8 space-y-4">
+          <form action="/" className="flex gap-2">
+            <input
+              type="text"
+              name="q"
+              defaultValue={query}
+              placeholder="search --cards"
+              className="w-full border border-[var(--terminal-border)] bg-black px-3 py-2 text-sm text-[var(--terminal-fg)]"
+            />
+            <button type="submit" className="terminal-button">
+              [ 검색 ]
+            </button>
+          </form>
+
           <div className="flex flex-wrap gap-2">
             <Link
-              href="/"
+              href={query ? `/?q=${encodeURIComponent(query)}` : "/"}
               data-testid="tag-all"
               className={`rounded-full border px-3 py-1 text-xs ${
                 !tag ? "border-emerald-400 text-[var(--terminal-fg)]" : "border-zinc-700 text-[var(--terminal-muted)]"
@@ -42,7 +58,7 @@ export default function Home({ searchParams }: Props) {
             {tags.map((item) => (
               <Link
                 key={item}
-                href={`/?tag=${item}`}
+                href={`/?tag=${item}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
                 data-testid={`tag-${item}`}
                 className={`rounded-full border px-3 py-1 text-xs ${
                   tag === item
