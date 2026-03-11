@@ -84,7 +84,7 @@ export default function DeckCreatePage() {
 
         <h1 className="mt-6 text-2xl font-semibold">덱 생성</h1>
         <p className="mt-2 text-sm text-[var(--terminal-muted)]">
-          MVP에서는 저장 대신 유효성만 확인해요.
+          덱을 저장하면 바로 상세 페이지로 이동해요.
         </p>
 
         <form onSubmit={onSubmit} className="mt-8 space-y-6">

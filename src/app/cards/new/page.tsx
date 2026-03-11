@@ -67,7 +67,7 @@ export default function CardCreatePage() {
 
         <h1 className="mt-6 text-2xl font-semibold">카드 작성</h1>
         <p className="mt-2 text-sm text-[var(--terminal-muted)]">
-          MVP에서는 저장 대신 유효성만 확인해요.
+          작성한 카드는 Supabase에 저장되고, 저장 후 목록으로 돌아가요.
         </p>
 
         <form onSubmit={onSubmit} className="mt-8 space-y-6">
