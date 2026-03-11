@@ -1,0 +1,42 @@
+[
+  {
+    "slug": "melt",
+    "title": "Melt",
+    "type": "song",
+    "character": "Hatsune Miku",
+    "tags": ["classic", "romance", "2007"],
+    "source_url": "https://mikudb.moe/classic-miku-songs/"
+  },
+  {
+    "slug": "world-is-mine",
+    "title": "World is Mine",
+    "type": "song",
+    "character": "Hatsune Miku",
+    "tags": ["classic", "iconic"],
+    "source_url": "https://mikudb.moe/classic-miku-songs/"
+  },
+  {
+    "slug": "rolling-girl",
+    "title": "Rolling Girl",
+    "type": "song",
+    "character": "Hatsune Miku",
+    "tags": ["rock", "classic"],
+    "source_url": "https://mikudb.moe/classic-miku-songs/"
+  },
+  {
+    "slug": "ievan-polkka",
+    "title": "Ievan Polkka",
+    "type": "song",
+    "character": "Hatsune Miku",
+    "tags": ["folk", "classic"],
+    "source_url": "https://mikudb.moe/classic-miku-songs/"
+  },
+  {
+    "slug": "reverse-rainbow",
+    "title": "Reverse Rainbow",
+    "type": "song",
+    "character": "Hatsune Miku",
+    "tags": ["classic", "duet"],
+    "source_url": "https://mikudb.moe/classic-miku-songs/"
+  }
+]
