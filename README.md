@@ -1,92 +1,173 @@
 # Voxie
 
-보컬로이드 서브컬쳐 커뮤니티 카드 아카이브 (MVP)
+보컬로이드 서브컬쳐 커뮤니티 카드 아카이브 MVP입니다.
 
-## 방향성
-- **카드 기반**으로 곡/대사/순간을 공유
-- 태그 + 랜덤 피드로 **유입/재방문** 강화
-- 덱(카드 5장 모음) 공유로 **커뮤니티 확산**
+Voxie는 곡, 대사, 밈, 순간 같은 보컬로이드 관련 장면을 **카드**로 모으고,
+여러 카드를 **덱**으로 묶어 탐색하고 공유할 수 있게 만드는 프로젝트입니다.
 
-## MVP 범위
-1) 카드 작성 (제목, 텍스트, 캐릭터, 태그, 링크)
-2) 카드 피드 + 태그 필터
-3) 카드 상세
-4) 덱 만들기 + 공유 링크
+---
 
-## 기술 스택 (제안)
-- **Next.js (App Router)**
-- **Tailwind CSS**
-- **Supabase (Auth + DB + Storage)**
-- **Zod** (입력 검증)
+## 현재 상태
+Voxie는 이미 핵심 MVP 흐름이 구현된 상태입니다.
 
-## 데이터 모델 (초안)
-```sql
--- cards
-id uuid primary key
-slug text unique
-title text not null
-body text
-character text
-tags text[]
-source_url text
-created_at timestamp
+### 현재 가능한 기능
+- 카드 목록 보기
+- 태그 필터 / 검색
+- 카드 상세 보기
+- 카드 작성
+- 덱 목록 / 검색
+- 덱 상세 보기
+- 덱 생성
+- 덱 수정
 
--- decks
-id uuid primary key
-title text not null
-card_ids uuid[]
-created_at timestamp
+### 데이터 동작 방식
+Voxie는 현재 **fallback-safe + Supabase transition** 구조로 동작합니다.
+
+- Supabase 환경 변수가 **없으면** 로컬 seed 데이터로 읽기 동작
+- Supabase 환경 변수가 **있으면** 카드/덱 read/write를 Supabase로 처리
+- 카드 생성 / 덱 생성 / 덱 수정은 **Supabase가 설정된 경우에만 저장 가능**
+
+즉, 로컬 개발 환경에서는 seed fallback으로 앱을 계속 확인할 수 있고,
+운영 환경에서는 Supabase를 primary 데이터 소스로 사용합니다.
+
+---
+
+## 주요 라우트
+- `/` — 홈 피드 (카드 목록, 검색, 태그 필터)
+- `/cards/[slug]` — 카드 상세
+- `/cards/new` — 카드 작성
+- `/decks` — 덱 목록 / 검색
+- `/decks/[slug]` — 덱 상세
+- `/decks/new` — 덱 생성
+- `/decks/[slug]/edit` — 덱 수정
+
+---
+
+## 기술 스택
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- Supabase
+- Vitest
+- Playwright
+- pnpm
+
+---
+
+## 로컬 실행
+
+### 1) 의존성 설치
+```bash
+pnpm install
 ```
 
-## 시드 데이터
-- `data/seed.json` (곡 카드 예시 5개)
+### 2) 개발 서버 실행
+```bash
+pnpm dev
+```
 
-## Supabase Setup
+### 3) 검증 명령
+```bash
+pnpm typecheck
+pnpm test
+pnpm build
+```
 
-### 환경 설정
+E2E 테스트:
+```bash
+pnpm test:e2e
+```
 
-1. Supabase 프로젝트 생성 (https://supabase.com)
-2. `.env.local` 파일 생성 (`.env.example` 참고):
-   ```bash
-   cp .env.example .env.local
-   ```
-3. Supabase 프로젝트 설정에서 URL과 Anon Key를 복사하여 `.env.local`에 추가
-   - `SUPABASE_URL`
-   - `SUPABASE_ANON_KEY`
-   - 이 값들은 브라우저 공개용 `NEXT_PUBLIC_*`가 아니라 **Next 서버 전용**으로 사용합니다.
+---
 
-### 데이터베이스 마이그레이션
+## Supabase 설정
 
-Supabase SQL Editor에서 다음 파일들을 순서대로 실행:
+### 환경 변수
+`.env.local`에 아래 값을 설정합니다.
 
-1. `supabase/migrations/001_initial_schema.sql` - 테이블 및 인덱스 생성
-2. `supabase/seed.sql` - (선택사항) 개발용 시드 데이터
+```bash
+SUPABASE_URL=...
+SUPABASE_ANON_KEY=...
+```
 
-### 현재 상태
+이 값들은 현재 **Next 서버 측 경로**에서 사용합니다.
+브라우저 공개용 `NEXT_PUBLIC_*` 기준으로 직접 붙는 구조를 전제로 하지 않습니다.
 
-- **Phase 1 완료**: Supabase 스키마 설계 및 클라이언트 설정
-- 기존 로컬 seed 데이터로 앱 동작 유지 (fallback mode)
-- Supabase 환경변수가 없어도 앱이 정상 동작
+### 데이터베이스 초기화
+Supabase SQL Editor에서 아래 파일을 순서대로 실행합니다.
 
-자세한 스키마 설계는 `docs/supabase-schema.md` 참고
+1. `supabase/migrations/001_initial_schema.sql`
+2. `supabase/seed.sql` (선택)
 
-## Deployment Env (PM2 / self-hosted runner)
+자세한 설계는 `docs/supabase-schema.md`를 참고하세요.
 
-실배포에서는 저장소 안에 env를 커밋하지 않고, **배포 서버 앱 디렉토리**에만 `.env.local`을 둡니다.
+---
 
-배포 경로:
+## 데이터 소스 구조
+
+### Fallback 데이터
+- `src/data/seed.json`
+- `src/data/decks.json`
+
+Supabase가 설정되지 않은 환경에서도 읽기 화면이 동작하도록 유지합니다.
+
+### Supabase 테이블
+- `cards`
+- `decks`
+- `deck_cards`
+
+현재 앱은 읽기 경로에서 **Supabase 우선 + fallback 지원** 전략을 사용하고,
+쓰기 경로는 Supabase가 설정된 경우에만 활성화됩니다.
+
+---
+
+## 테스트 범위
+현재 저장소에는 다음 테스트가 포함되어 있습니다.
+
+### Vitest
+- 카드 form helper 테스트
+- 덱 form helper 테스트
+- 덱 edit helper 테스트
+- 카드/덱 조회 테스트
+- 검색 테스트
+- 카드 생성 서버 액션 테스트
+- 덱 생성 서버 액션 테스트
+- 덱 수정 서버 액션 테스트
+
+### Playwright
+- 홈 화면 렌더 / 태그 필터
+- 카드 상세 페이지 렌더
+
+---
+
+## 배포
+배포는 self-hosted runner + PM2 기준으로 운영합니다.
+
+### 앱 경로
+- `/Users/bini/apps/03_voxie`
+
+### 배포용 env 파일
 - `/Users/bini/apps/03_voxie/.env.local`
+
+CD 워크플로우는 빌드 전에 이 파일 존재 여부를 검사합니다.
+파일이 없으면 배포를 중단해서 env 누락 상태의 배포를 막습니다.
 
 필수 값:
 ```bash
-SUPABASE_URL=http://localhost:8000
-SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_URL=...
+SUPABASE_ANON_KEY=...
 ```
 
-CD 워크플로우는 빌드 전에 이 파일 존재 여부를 검사합니다.
-파일이 없으면 배포를 중단해서, env 누락 상태로 잘못 배포되는 것을 막습니다.
+### 중요한 제약
+프론트엔드가 Cloudflare Tunnel 뒤에서 서비스되므로,
+브라우저가 `localhost:8000`에 직접 붙는 구조를 전제로 하면 안 됩니다.
+Supabase 연결은 서버 측 경로 기준으로 유지합니다.
 
-## 다음 단계
-- 초기 UI 와이어프레임
-- ~~Supabase 스키마 생성~~ ✅
-- 카드 CRUD + 덱 생성 MVP 구현
+---
+
+## 현재 남은 우선순위
+- 실배포 환경에서 카드/덱 저장 동작 최종 검증
+- fallback 모드와 Supabase 모드 간 UX 차이 정리
+- 남은 seed/helper 의존 경계 정리
+- 문서와 실제 구현 상태의 지속적 동기화

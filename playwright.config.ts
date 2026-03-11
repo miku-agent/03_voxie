@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: "./e2e",
   timeout: 30_000,
   webServer: {
-    command: "pnpm dev -- --port 3000",
+    command: "pnpm exec next dev --port 3000",
     port: 3000,
     reuseExistingServer: !process.env.CI,
   },
