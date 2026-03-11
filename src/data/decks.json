@@ -1,0 +1,16 @@
+[
+  {
+    "slug": "classic-miku",
+    "name": "Classic Miku",
+    "description": "초기 대표곡 모음",
+    "tags": ["classic", "miku"],
+    "cards": ["melt", "world-is-mine", "rolling-girl"]
+  },
+  {
+    "slug": "stage-hits",
+    "name": "Stage Hits",
+    "description": "라이브에서 많이 불린 곡",
+    "tags": ["iconic", "live"],
+    "cards": ["melt", "ievan-polkka", "reverse-rainbow"]
+  }
+]

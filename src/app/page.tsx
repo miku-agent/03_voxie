@@ -18,6 +18,14 @@ export default function Home({ searchParams }: Props) {
           <p className="mt-2 text-sm text-zinc-400">
             보컬로이드 순간을 카드로 모으는 커뮤니티 아카이브
           </p>
+          <div className="mt-4 flex gap-4 text-sm">
+            <Link className="text-emerald-300" href="/decks">
+              덱 보기 →
+            </Link>
+            <Link className="text-emerald-300" href="/cards/new">
+              카드 작성 →
+            </Link>
+          </div>
         </header>
 
         <section className="mb-8">
