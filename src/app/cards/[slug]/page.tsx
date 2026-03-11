@@ -36,7 +36,7 @@ export default async function CardDetail({ params }: Props) {
           <Link className="text-sm text-[var(--terminal-muted)]" href="/">
             ← 카드 목록
           </Link>
-          <div className="mt-4 grid gap-6 md:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_280px] md:gap-6">
             <div>
               <div className="dense-meta">
                 <span>{card.character}</span>
@@ -57,13 +57,18 @@ export default async function CardDetail({ params }: Props) {
                   </span>
                 ))}
               </div>
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                 {relatedDecks.length > 0 && (
-                  <Link className="terminal-button" href={`/decks/${relatedDecks[0].slug}`}>
+                  <Link className="terminal-button w-full sm:w-auto" href={`/decks/${relatedDecks[0].slug}`}>
                     관련 덱 보기
                   </Link>
                 )}
-                <a href={links.youtubeSearch} target="_blank" rel="noreferrer" className="terminal-button">
+                <a
+                  href={links.youtubeSearch}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="terminal-button w-full sm:w-auto"
+                >
                   YouTube 검색
                 </a>
               </div>
@@ -94,6 +99,10 @@ export default async function CardDetail({ params }: Props) {
                     <span className="text-right">{card.era}</span>
                   </div>
                 )}
+                <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                  <span className="text-[var(--terminal-muted)]">연결된 덱</span>
+                  <span>{relatedDecks.length}</span>
+                </div>
               </div>
             </aside>
           </div>
@@ -160,14 +169,19 @@ export default async function CardDetail({ params }: Props) {
                 {relatedDecks.length > 0 ? (
                   relatedDecks.map((deck) => (
                     <Link key={deck.slug} href={`/decks/${deck.slug}`} className="block border border-[var(--terminal-border)] px-4 py-4">
-                      <p className="text-sm font-semibold">{deck.name}</p>
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold">{deck.name}</p>
+                        <span className="text-xs text-[var(--terminal-muted)]">{deck.cards.length} cards</span>
+                      </div>
                       <p className="mt-1 text-sm leading-6 text-[var(--terminal-muted)]">
                         {deck.shortPitch ?? deck.description}
                       </p>
                     </Link>
                   ))
                 ) : (
-                  <p className="text-sm text-[var(--terminal-muted)]">아직 이 카드를 담은 덱이 없어요.</p>
+                  <div className="border border-[var(--terminal-border)] px-4 py-4 text-sm text-[var(--terminal-muted)]">
+                    아직 이 카드를 담은 덱이 없어요. 덱을 새로 만들어 이 카드를 중심으로 묶을 수 있어요.
+                  </div>
                 )}
               </div>
             </section>
