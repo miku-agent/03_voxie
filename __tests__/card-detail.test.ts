@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cards, getCardBySlug, getYouTubeEmbedUrl } from "@/lib/cards";
+import { cards, getCardBySlug, getCardMediaMeta, getSourceLabel, getYouTubeEmbedUrl, getYouTubeThumbnailUrl } from "@/lib/cards";
 
 describe("card detail", () => {
   it("returns a card by slug", () => {
@@ -26,8 +26,22 @@ describe("card detail", () => {
     );
   });
 
+  it("builds thumbnail and source metadata for video-enabled cards", () => {
+    const card = getCardBySlug("melt");
+    expect(card).toBeTruthy();
+    expect(getYouTubeThumbnailUrl(card?.youtube_url)).toBe("https://img.youtube.com/vi/o1jAMSQyVPc/hqdefault.jpg");
+    expect(getSourceLabel(card?.youtube_url)).toBe("YouTube");
+    expect(getCardMediaMeta(card!)).toMatchObject({
+      hasRichMedia: true,
+      videoLabel: "YouTube",
+      youtubeThumbnailUrl: "https://img.youtube.com/vi/o1jAMSQyVPc/hqdefault.jpg",
+    });
+  });
+
   it("ignores invalid or non-youtube urls", () => {
     expect(getYouTubeEmbedUrl("https://example.com/video")).toBeUndefined();
+    expect(getYouTubeThumbnailUrl("https://example.com/video")).toBeUndefined();
+    expect(getSourceLabel("https://example.com/video")).toBe("example.com");
     expect(getYouTubeEmbedUrl("https://www.youtube.com/watch?v=short")).toBeUndefined();
     expect(getYouTubeEmbedUrl("not-a-url")).toBeUndefined();
   });

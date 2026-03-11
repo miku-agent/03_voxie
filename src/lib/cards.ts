@@ -155,7 +155,7 @@ export const getCardExternalLinks = (card: Card) => {
   };
 };
 
-export const getYouTubeEmbedUrl = (url?: string) => {
+export const getYouTubeVideoId = (url?: string) => {
   if (!url) return undefined;
 
   try {
@@ -177,8 +177,47 @@ export const getYouTubeEmbedUrl = (url?: string) => {
     }
 
     if (!videoId || !/^[A-Za-z0-9_-]{11}$/.test(videoId)) return undefined;
-    return `https://www.youtube.com/embed/${videoId}`;
+    return videoId;
   } catch {
     return undefined;
   }
+};
+
+export const getYouTubeEmbedUrl = (url?: string) => {
+  const videoId = getYouTubeVideoId(url);
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : undefined;
+};
+
+export const getYouTubeThumbnailUrl = (url?: string) => {
+  const videoId = getYouTubeVideoId(url);
+  return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : undefined;
+};
+
+export const getSourceLabel = (url?: string) => {
+  if (!url) return undefined;
+
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+
+    if (host.includes("youtube.com") || host === "youtu.be") return "YouTube";
+    if (host.includes("nicovideo.jp")) return "Niconico";
+    return parsed.hostname.replace(/^www\./, "");
+  } catch {
+    return undefined;
+  }
+};
+
+export const getCardMediaMeta = (card: Card) => {
+  const youtubeThumbnailUrl = getYouTubeThumbnailUrl(card.youtube_url);
+  const sourceLabel = getSourceLabel(card.source_url);
+  const videoLabel = getSourceLabel(card.youtube_url);
+
+  return {
+    hasRichMedia: Boolean(youtubeThumbnailUrl),
+    youtubeThumbnailUrl,
+    sourceLabel,
+    videoLabel,
+    hasSourceMeta: Boolean(sourceLabel || videoLabel),
+  };
 };

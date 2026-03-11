@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { getCardBySlugAsync, getCardExternalLinks, getYouTubeEmbedUrl } from "@/lib/cards";
+import {
+  getCardBySlugAsync,
+  getCardExternalLinks,
+  getCardMediaMeta,
+  getYouTubeEmbedUrl,
+} from "@/lib/cards";
 import { listDecks } from "@/lib/decks";
 import { getProfileHref } from "@/lib/profiles";
 
@@ -28,6 +33,7 @@ export default async function CardDetail({ params }: Props) {
 
   const links = getCardExternalLinks(card);
   const embedUrl = getYouTubeEmbedUrl(card.youtube_url);
+  const media = getCardMediaMeta(card);
   const decks = await listDecks();
   const relatedDecks = decks.filter((deck) => deck.cards.includes(card.slug));
 
@@ -124,6 +130,18 @@ export default async function CardDetail({ params }: Props) {
                   <span className="text-[var(--terminal-muted)]">영상</span>
                   <span>{embedUrl ? "있음" : "없음"}</span>
                 </div>
+                {media.videoLabel && (
+                  <div className="flex items-center justify-between gap-4 border border-[var(--terminal-border)] px-3 py-2">
+                    <span className="text-[var(--terminal-muted)]">영상 소스</span>
+                    <span className="text-right">{media.videoLabel}</span>
+                  </div>
+                )}
+                {media.sourceLabel && (
+                  <div className="flex items-center justify-between gap-4 border border-[var(--terminal-border)] px-3 py-2">
+                    <span className="text-[var(--terminal-muted)]">원문 소스</span>
+                    <span className="text-right">{media.sourceLabel}</span>
+                  </div>
+                )}
               </div>
             </aside>
           </div>
@@ -141,15 +159,45 @@ export default async function CardDetail({ params }: Props) {
                     </a>
                   )}
                 </div>
-                <div className="overflow-hidden border border-[var(--terminal-border)] bg-black">
-                  <div className="relative aspect-video w-full">
-                    <iframe
-                      src={embedUrl}
-                      title={`${card.title} YouTube player`}
-                      className="absolute inset-0 h-full w-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
+                <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
+                  {media.youtubeThumbnailUrl && (
+                    <a
+                      href={links.youtube}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="overflow-hidden border border-[var(--terminal-border)] bg-black"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={media.youtubeThumbnailUrl} alt={`${card.title} thumbnail`} className="aspect-video h-full w-full object-cover" />
+                    </a>
+                  )}
+                  <div className="space-y-3">
+                    <div className="overflow-hidden border border-[var(--terminal-border)] bg-black">
+                      <div className="relative aspect-video w-full">
+                        <iframe
+                          src={embedUrl}
+                          title={`${card.title} YouTube player`}
+                          className="absolute inset-0 h-full w-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="border border-[var(--terminal-border)] px-4 py-3">
+                        <p className="text-xs uppercase tracking-[0.12em] text-[var(--terminal-muted)]">preview</p>
+                        <p className="mt-2 text-sm leading-6 text-[var(--terminal-soft)]">
+                          텍스트 링크 대신 썸네일과 임베드로 바로 맥락을 파악할 수 있어요.
+                        </p>
+                      </div>
+                      <div className="border border-[var(--terminal-border)] px-4 py-3">
+                        <p className="text-xs uppercase tracking-[0.12em] text-[var(--terminal-muted)]">source metadata</p>
+                        <p className="mt-2 text-sm leading-6 text-[var(--terminal-soft)]">
+                          영상 소스 {media.videoLabel ?? "unknown"}
+                          {media.sourceLabel ? ` · 원문 소스 ${media.sourceLabel}` : ""}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </section>
@@ -188,6 +236,20 @@ export default async function CardDetail({ params }: Props) {
           <aside className="space-y-6">
             <section className="terminal-frame p-5">
               <h2 className="text-lg font-semibold">바로 가기</h2>
+              {media.hasSourceMeta && (
+                <div className="mt-4 grid gap-3 text-sm">
+                  <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                    <span className="text-[var(--terminal-muted)]">영상 소스</span>
+                    <span>{media.videoLabel ?? "unknown"}</span>
+                  </div>
+                  {media.sourceLabel && (
+                    <div className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                      <span className="text-[var(--terminal-muted)]">원문 소스</span>
+                      <span>{media.sourceLabel}</span>
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="mt-4 flex flex-col gap-3 text-sm">
                 {links.source && (
                   <a href={links.source} target="_blank" rel="noreferrer" className="terminal-button text-center">
