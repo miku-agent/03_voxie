@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { filterCards, listCards, listTags, searchCards } from "@/lib/cards";
 import { listDecks, searchDecks } from "@/lib/decks";
+import {
+  buildCuratorDiscoveryLinks,
+  buildEraDiscoveryLinks,
+  buildThemeDiscoveryLinks,
+} from "@/lib/home";
 import { getProfileHref } from "@/lib/profiles";
 
 type Props = {
@@ -22,6 +27,9 @@ export default async function Home({ searchParams }: Props) {
   const tags = listTags(allCards);
   const featuredDecks = allDecks.filter((deck) => deck.featured).slice(0, 3);
   const highlightedDecks = (query ? searchedDecks : allDecks).slice(0, 6);
+  const themeLinks = buildThemeDiscoveryLinks(allDecks);
+  const eraLinks = buildEraDiscoveryLinks(allCards);
+  const curatorLinks = buildCuratorDiscoveryLinks(allDecks);
   const hasFilters = Boolean(query || tag);
   const resultLabel = hasFilters
     ? `검색/필터 결과 카드 ${cards.length}개`
@@ -105,15 +113,15 @@ export default async function Home({ searchParams }: Props) {
               전체 덱 보기 →
             </Link>
           </div>
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {(highlightedDecks.length > 0 ? highlightedDecks : featuredDecks).map((deck) => (
-              <Link key={deck.slug} href={`/decks/${deck.slug}`} className="terminal-frame block p-4 sm:p-5">
-                <div className="flex items-center justify-between gap-4 text-xs text-[var(--terminal-muted)]">
-                  <span className="truncate">{deck.featured ? "featured deck" : "curated deck"}</span>
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
+            {(highlightedDecks.length > 0 ? highlightedDecks : featuredDecks).slice(0, 1).map((deck) => (
+              <Link key={deck.slug} href={`/decks/${deck.slug}`} className="terminal-shell block p-6 sm:p-7">
+                <div className="flex items-center justify-between gap-4 text-xs uppercase tracking-[0.14em] text-[var(--terminal-muted)]">
+                  <span className="truncate">featured deck</span>
                   <span>{deck.cards.length} cards</span>
                 </div>
-                <h3 className="mt-3 text-lg font-semibold">{deck.name}</h3>
-                <div className="mt-2 text-xs text-[var(--terminal-muted)]">
+                <h3 className="mt-4 text-2xl font-semibold sm:text-3xl">{deck.name}</h3>
+                <div className="mt-3 text-xs text-[var(--terminal-muted)]">
                   {deck.authorName && deck.authorHandle ? (
                     <Link href={getProfileHref(deck.authorHandle)!} className="underline-offset-4 hover:underline">
                       by {deck.authorName}
@@ -122,18 +130,81 @@ export default async function Home({ searchParams }: Props) {
                     <span>author unknown</span>
                   )}
                 </div>
-                <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--terminal-soft)]">
+                <p className="mt-4 max-w-xl text-sm leading-7 text-[var(--terminal-soft)]">
                   {deck.shortPitch ?? deck.description}
                 </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {deck.tags.slice(0, 3).map((item) => (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {deck.tags.slice(0, 4).map((item) => (
                     <span key={item} className="terminal-chip">
                       #{item}
                     </span>
                   ))}
                 </div>
+                <div className="mt-5 inline-flex text-sm text-[var(--terminal-soft)]">이 덱으로 들어가기 →</div>
               </Link>
             ))}
+
+            <div className="grid gap-3">
+              {(highlightedDecks.length > 0 ? highlightedDecks : featuredDecks).slice(1, 3).map((deck) => (
+                <Link key={deck.slug} href={`/decks/${deck.slug}`} className="terminal-frame block p-4 sm:p-5">
+                  <div className="flex items-center justify-between gap-4 text-xs text-[var(--terminal-muted)]">
+                    <span className="truncate">{deck.featured ? "featured deck" : "curated deck"}</span>
+                    <span>{deck.cards.length} cards</span>
+                  </div>
+                  <h3 className="mt-3 text-lg font-semibold">{deck.name}</h3>
+                  <div className="mt-2 text-xs text-[var(--terminal-muted)]">
+                    {deck.authorName && deck.authorHandle ? (
+                      <Link href={getProfileHref(deck.authorHandle)!} className="underline-offset-4 hover:underline">
+                        by {deck.authorName}
+                      </Link>
+                    ) : (
+                      <span>author unknown</span>
+                    )}
+                  </div>
+                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--terminal-soft)]">
+                    {deck.shortPitch ?? deck.description}
+                  </p>
+                </Link>
+              ))}
+            </div>
+
+            <aside className="terminal-frame p-5">
+              <h3 className="text-base font-semibold">탐색 시작점</h3>
+              <div className="mt-4 space-y-4 text-sm">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.12em] text-[var(--terminal-muted)]">themes</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {themeLinks.map((item) => (
+                      <Link key={item.href} href={item.href} className="terminal-chip">
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.12em] text-[var(--terminal-muted)]">eras</p>
+                  <div className="mt-2 flex flex-col gap-2">
+                    {eraLinks.map((item) => (
+                      <Link key={item.href} href={item.href} className="flex items-center justify-between border border-[var(--terminal-border)] px-3 py-2">
+                        <span>{item.label}</span>
+                        <span className="text-[var(--terminal-muted)]">{item.helper}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.12em] text-[var(--terminal-muted)]">curators</p>
+                  <div className="mt-2 flex flex-col gap-2">
+                    {curatorLinks.map((item) => (
+                      <Link key={item.href} href={item.href} className="border border-[var(--terminal-border)] px-3 py-2">
+                        <p className="font-semibold">{item.label}</p>
+                        {item.helper && <p className="mt-1 text-xs leading-5 text-[var(--terminal-muted)]">{item.helper}</p>}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </aside>
           </div>
         </section>
 
