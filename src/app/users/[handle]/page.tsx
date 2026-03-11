@@ -12,7 +12,7 @@ type Props = {
 
 export default async function UserProfilePage({ params }: Props) {
   const { handle } = await params;
-  const profile = getProfileByHandle(handle);
+  const profile = await getProfileByHandle(handle);
 
   if (!profile) notFound();
 
