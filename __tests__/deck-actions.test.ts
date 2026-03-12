@@ -15,7 +15,6 @@ describe("deck actions", () => {
   it("returns a local mode error when deck creation is attempted without Supabase", async () => {
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => false,
-      supabase: null,
     }));
     vi.doMock("@/lib/authored-content", () => ({
       requireCurrentAuthoredProfile: () =>
@@ -76,7 +75,9 @@ describe("deck actions", () => {
 
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => true,
-      supabase: { from },
+    }));
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve({ from }),
     }));
     vi.doMock("@/lib/authored-content", () => ({
       requireCurrentAuthoredProfile: () =>
@@ -126,7 +127,7 @@ describe("deck actions", () => {
 
   it("updates a deck, replaces linked cards, and revalidates edit pages", async () => {
     const single = vi.fn().mockResolvedValue({
-      data: { id: 77 },
+      data: { id: 77, owner_user_id: "user-1" },
       error: null,
     });
     const eqForSelect = vi.fn(() => ({ single }));
@@ -172,7 +173,16 @@ describe("deck actions", () => {
 
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => true,
-      supabase: { from },
+    }));
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve({ from }),
+    }));
+    vi.doMock("@/lib/authored-content", () => ({
+      requireCurrentAuthoredProfile: () =>
+        Promise.resolve({
+          user: { id: "user-1" },
+          identity: { userId: "user-1", handle: "bini59", name: "빈이" },
+        }),
     }));
 
     const { updateDeck } = await import("@/lib/actions/decks");
@@ -186,7 +196,7 @@ describe("deck actions", () => {
       cards: ["melt", "rolling-girl"],
     });
 
-    expect(select).toHaveBeenCalledWith("id");
+    expect(select).toHaveBeenCalledWith("id, owner_user_id");
     expect(eqForSelect).toHaveBeenCalledWith("slug", "classic-miku");
     expect(update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -215,6 +225,52 @@ describe("deck actions", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/decks/classic-miku/edit");
   });
 
+  it("returns unauthorized when update requester is not owner", async () => {
+    const single = vi.fn().mockResolvedValue({
+      data: { id: 77, owner_user_id: "user-2" },
+      error: null,
+    });
+    const eq = vi.fn(() => ({ single }));
+    const select = vi.fn(() => ({ eq }));
+    const update = vi.fn(() => ({ eq: vi.fn() }));
+
+    const from = vi.fn((table: string) => {
+      if (table === "decks") return { select, update };
+      throw new Error(`Unexpected table ${table}`);
+    });
+
+    vi.doMock("@/lib/supabase/client", () => ({
+      isSupabaseConfigured: () => true,
+    }));
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve({ from }),
+    }));
+    vi.doMock("@/lib/authored-content", () => ({
+      requireCurrentAuthoredProfile: () =>
+        Promise.resolve({
+          user: { id: "user-1" },
+          identity: { userId: "user-1", handle: "bini59", name: "빈이" },
+        }),
+    }));
+
+    const { updateDeck } = await import("@/lib/actions/decks");
+
+    await expect(
+      updateDeck("classic-miku", {
+        name: "Classic Miku",
+        description: "대표곡 모음",
+        tags: ["classic"],
+        cards: ["melt"],
+      })
+    ).resolves.toEqual({
+      success: false,
+      error: "Unauthorized: only the owner can edit this deck",
+    });
+
+    expect(update).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
   it("returns not found when update target deck does not exist", async () => {
     const single = vi.fn().mockResolvedValue({
       data: null,
@@ -226,7 +282,16 @@ describe("deck actions", () => {
 
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => true,
-      supabase: { from },
+    }));
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve({ from }),
+    }));
+    vi.doMock("@/lib/authored-content", () => ({
+      requireCurrentAuthoredProfile: () =>
+        Promise.resolve({
+          user: { id: "user-1" },
+          identity: { userId: "user-1", handle: "bini59", name: "빈이" },
+        }),
     }));
 
     const { updateDeck } = await import("@/lib/actions/decks");

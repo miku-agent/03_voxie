@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { toggleCuratorFollow } from "@/lib/actions/social";
+import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 
 type Props = {
   handle: string;
@@ -39,9 +39,10 @@ export default function FollowCuratorButton({ handle, name, initialFollowers, in
   return (
     <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       {requiresAuth ? (
-        <div className="w-full border border-[var(--terminal-border)] px-3 py-3 text-xs leading-6 text-[var(--terminal-soft)] sm:w-auto">
-          팔로우를 저장하려면 먼저 로그인해 주세요. <Link href="/auth" className="underline underline-offset-4">로그인하러 가기 →</Link>
-        </div>
+        <AuthRequiredNotice
+          className="w-full border border-[var(--terminal-border)] px-3 py-3 text-xs leading-6 text-[var(--terminal-soft)] sm:w-auto"
+          message="팔로우를 저장하려면 먼저 로그인해 주세요."
+        />
       ) : (
         <button type="button" className="terminal-button w-full sm:w-auto" onClick={handleToggle} disabled={pending}>
           {followed ? `${name} 언팔로우` : `${name} 팔로우`}

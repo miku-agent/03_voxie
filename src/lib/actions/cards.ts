@@ -2,7 +2,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { CardPayload } from "@/lib/card-form";
 import { requireCurrentAuthoredProfile } from "@/lib/authored-content";
 import { insertMockCard, isMockWriteModeEnabled } from "@/lib/mock-db";
@@ -49,7 +50,15 @@ export async function createCard(payload: CardPayload) {
       };
     }
 
-    if (!isSupabaseConfigured() || !supabase) {
+    if (!isSupabaseConfigured()) {
+      return {
+        success: false,
+        error: "Supabase not configured. Card creation is disabled in local mode.",
+      };
+    }
+
+    const supabase = await createSupabaseServerClient();
+    if (!supabase) {
       return {
         success: false,
         error: "Supabase not configured. Card creation is disabled in local mode.",

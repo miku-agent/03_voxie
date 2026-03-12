@@ -15,7 +15,6 @@ describe("card actions", () => {
   it("returns a local mode error when Supabase is not configured", async () => {
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => false,
-      supabase: null,
     }));
     vi.doMock("@/lib/authored-content", () => ({
       requireCurrentAuthoredProfile: () =>
@@ -55,7 +54,9 @@ describe("card actions", () => {
 
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => true,
-      supabase: { from },
+    }));
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve({ from }),
     }));
     vi.doMock("@/lib/authored-content", () => ({
       requireCurrentAuthoredProfile: () =>
@@ -111,7 +112,9 @@ describe("card actions", () => {
 
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => true,
-      supabase: { from },
+    }));
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve({ from }),
     }));
     vi.doMock("@/lib/authored-content", () => ({
       requireCurrentAuthoredProfile: () =>

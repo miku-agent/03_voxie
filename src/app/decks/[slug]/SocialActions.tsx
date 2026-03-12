@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { toggleCuratorFollow, toggleDeckBookmark, toggleDeckLike } from "@/lib/actions/social";
+import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 
 type Props = {
   slug: string;
@@ -102,30 +103,45 @@ export default function SocialActions({
       </p>
 
       {requiresAuth && (
-        <div className="mt-4 border border-[var(--terminal-border)] px-3 py-3 text-xs leading-6 text-[var(--terminal-soft)]">
-          반응을 저장하려면 먼저 로그인해 주세요. <Link href="/auth" className="underline underline-offset-4">로그인하러 가기 →</Link>
-        </div>
+        <AuthRequiredNotice
+          className="mt-4 border border-[var(--terminal-border)] px-3 py-3 text-xs leading-6 text-[var(--terminal-soft)]"
+          message="반응을 저장하려면 먼저 로그인해 주세요."
+        />
       )}
 
       <div className="mt-4 grid gap-2">
-        <button
-          type="button"
-          className="terminal-button w-full justify-between"
-          onClick={handleLike}
-          disabled={pending}
-        >
-          <span>{liked ? "좋아요 취소" : "좋아요"}</span>
-          <span>{likes}</span>
-        </button>
-        <button
-          type="button"
-          className="terminal-button w-full justify-between"
-          onClick={handleBookmark}
-          disabled={pending}
-        >
-          <span>{bookmarked ? "북마크 해제" : "북마크"}</span>
-          <span>{bookmarks}</span>
-        </button>
+        {requiresAuth ? (
+          <Link href="/auth" className="terminal-button w-full justify-between">
+            <span>좋아요</span>
+            <span>{likes}</span>
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="terminal-button w-full justify-between"
+            onClick={handleLike}
+            disabled={pending}
+          >
+            <span>{liked ? "좋아요 취소" : "좋아요"}</span>
+            <span>{likes}</span>
+          </button>
+        )}
+        {requiresAuth ? (
+          <Link href="/auth" className="terminal-button w-full justify-between">
+            <span>북마크</span>
+            <span>{bookmarks}</span>
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="terminal-button w-full justify-between"
+            onClick={handleBookmark}
+            disabled={pending}
+          >
+            <span>{bookmarked ? "북마크 해제" : "북마크"}</span>
+            <span>{bookmarks}</span>
+          </button>
+        )}
         {followRequiresAuth ? (
           <Link href="/auth" className="terminal-button w-full justify-between">
             <span>{curatorName ?? "큐레이터"} 팔로우</span>
