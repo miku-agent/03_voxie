@@ -77,7 +77,9 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
   const relatedDecks = getRelatedDecks(deck, allDecks);
   const relatedCards = cards.length > 0 ? getRelatedCards(cards[0], allCards) : [];
   const social = await getDeckSocialMeta(deck.slug);
-  const profileSocial = deck.authorHandle ? getProfileSocialMeta(deck.authorHandle) : { followers: 0 };
+  const profileSocial = deck.authorHandle
+    ? await getProfileSocialMeta(deck.authorHandle)
+    : { followers: 0, viewerIsFollowing: false, requiresAuth: true };
 
   return (
     <div className="min-h-screen text-white">
@@ -208,9 +210,12 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
               initialBookmarks={social.bookmarks}
               initiallyLiked={social.viewerHasLiked}
               initiallyBookmarked={social.viewerHasBookmarked}
+              curatorHandle={deck.authorHandle}
               curatorName={deck.authorName}
               initialFollowers={profileSocial.followers}
+              initiallyFollowing={profileSocial.viewerIsFollowing}
               requiresAuth={social.requiresAuth}
+              followRequiresAuth={profileSocial.requiresAuth}
             />
           </div>
         </section>

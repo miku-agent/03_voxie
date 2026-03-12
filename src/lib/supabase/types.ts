@@ -157,6 +157,26 @@ export interface Database {
           created_at?: string
         }
       }
+      curator_follows: {
+        Row: {
+          id: string
+          curator_handle: string
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          curator_handle: string
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          curator_handle?: string
+          user_id?: string
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

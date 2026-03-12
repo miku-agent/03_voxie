@@ -62,8 +62,43 @@ describe("social metadata", () => {
     });
   });
 
-  it("returns follower stats for known curators", async () => {
+  it("returns follower seed stats when Supabase is unavailable", async () => {
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve(null),
+    }));
+    vi.doMock("@/lib/auth", () => ({
+      getCurrentUser: () => Promise.resolve(null),
+    }));
+
     const { getProfileSocialMeta } = await import("@/lib/social");
-    expect(getProfileSocialMeta("bini59").followers).toBeGreaterThan(0);
+    await expect(getProfileSocialMeta("bini59")).resolves.toEqual({
+      followers: 142,
+      viewerIsFollowing: false,
+      requiresAuth: true,
+    });
+  });
+
+  it("returns persisted follow state for the current user on curator profiles", async () => {
+    const followEqHandle = vi.fn().mockResolvedValue({ data: [{ user_id: "user-1" }, { user_id: "user-2" }] });
+    const from = vi.fn((table: string) => {
+      if (table === "curator_follows") {
+        return { select: () => ({ eq: followEqHandle }) };
+      }
+      throw new Error(`Unexpected table ${table}`);
+    });
+
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve({ from }),
+    }));
+    vi.doMock("@/lib/auth", () => ({
+      getCurrentUser: () => Promise.resolve({ id: "user-1" }),
+    }));
+
+    const { getProfileSocialMeta } = await import("@/lib/social");
+    await expect(getProfileSocialMeta("bini59")).resolves.toEqual({
+      followers: 2,
+      viewerIsFollowing: true,
+      requiresAuth: false,
+    });
   });
 });

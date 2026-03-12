@@ -11,6 +11,8 @@ export type DeckSocialMeta = {
 
 export type ProfileSocialMeta = {
   followers: number;
+  viewerIsFollowing: boolean;
+  requiresAuth: boolean;
 };
 
 const deckSocialSeed: Record<string, { likes: number; bookmarks: number }> = {
@@ -21,7 +23,7 @@ const deckSocialSeed: Record<string, { likes: number; bookmarks: number }> = {
   "emotion-arc": { likes: 54, bookmarks: 22 },
 };
 
-const profileSocialSeed: Record<string, ProfileSocialMeta> = {
+const profileSocialSeed: Record<string, { followers: number }> = {
   bini59: { followers: 142 },
   miku: { followers: 256 },
 };
@@ -30,8 +32,33 @@ export const getDeckSeedSocialMeta = (slug: string) => {
   return deckSocialSeed[slug] ?? { likes: 0, bookmarks: 0 };
 };
 
-export const getProfileSocialMeta = (handle: string): ProfileSocialMeta => {
+export const getProfileSeedSocialMeta = (handle: string) => {
   return profileSocialSeed[handle] ?? { followers: 0 };
+};
+
+export const getProfileSocialMeta = async (handle: string): Promise<ProfileSocialMeta> => {
+  const normalizedHandle = handle.trim().toLowerCase();
+  const seed = getProfileSeedSocialMeta(normalizedHandle);
+  const supabase = await createSupabaseServerClient();
+  const user = await getCurrentUser();
+
+  if (!supabase) {
+    return {
+      followers: seed.followers,
+      viewerIsFollowing: false,
+      requiresAuth: true,
+    };
+  }
+
+  const { data: follows } = await (supabase.from("curator_follows") as any)
+    .select("user_id")
+    .eq("curator_handle", normalizedHandle);
+
+  return {
+    followers: follows?.length ?? seed.followers,
+    viewerIsFollowing: Boolean(user && follows?.some((entry: { user_id: string }) => entry.user_id === user.id)),
+    requiresAuth: !user,
+  };
 };
 
 export const getDeckSocialMeta = async (slug: string): Promise<DeckSocialMeta> => {
