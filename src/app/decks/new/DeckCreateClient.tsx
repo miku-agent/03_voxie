@@ -10,6 +10,7 @@ import {
   validateDeckPayload,
 } from "@/lib/deck-form";
 import { createDeck } from "@/lib/actions/decks";
+import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 
 const initialState: DeckFormInput = {
   name: "",
@@ -22,9 +23,10 @@ const initialState: DeckFormInput = {
 
 type Props = {
   cards: Card[];
+  requiresAuth: boolean;
 };
 
-export default function DeckCreateClient({ cards }: Props) {
+export default function DeckCreateClient({ cards, requiresAuth }: Props) {
   const router = useRouter();
   const [form, setForm] = useState<DeckFormInput>(initialState);
   const [errors, setErrors] = useState<string[]>([]);
@@ -111,6 +113,25 @@ export default function DeckCreateClient({ cards }: Props) {
       }
     }
   };
+
+  if (requiresAuth) {
+    return (
+      <div className="min-h-screen text-white">
+        <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
+          <div className="terminal-shell p-6">
+            <Link className="text-sm text-[var(--terminal-muted)]" href="/decks">
+              ← 덱 목록
+            </Link>
+            <h1 className="mt-4 text-2xl font-semibold">덱 추가는 로그인 후에 가능해요</h1>
+            <AuthRequiredNotice
+              className="mt-4 border border-[var(--terminal-border)] px-4 py-3 text-sm leading-7 text-[var(--terminal-soft)]"
+              message="덱 생성은 작성 권한이 필요한 액션입니다."
+            />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen text-white">

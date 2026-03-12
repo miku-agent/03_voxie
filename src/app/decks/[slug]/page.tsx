@@ -8,6 +8,8 @@ import { getDeckBySlugAsync, listDecks } from "@/lib/decks";
 import { getProfileHref } from "@/lib/profiles";
 import { getRelatedCards, getRelatedDecks } from "@/lib/related";
 import { getDeckSocialMeta, getProfileSocialMeta } from "@/lib/social";
+import { getCurrentUser } from "@/lib/auth";
+import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -76,6 +78,8 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
   const allCards = await listCards();
   const relatedDecks = getRelatedDecks(deck, allDecks);
   const relatedCards = cards.length > 0 ? getRelatedCards(cards[0], allCards) : [];
+  const currentUser = await getCurrentUser();
+  const isLoggedIn = Boolean(currentUser);
   const social = await getDeckSocialMeta(deck.slug);
   const profileSocial = deck.authorHandle
     ? await getProfileSocialMeta(deck.authorHandle)
@@ -90,11 +94,11 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
               ← 덱 목록
             </Link>
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
-              <Link className="terminal-button w-full sm:w-auto" href={`/decks/${deck.slug}/edit`}>
-                덱 수정
+              <Link className="terminal-button w-full sm:w-auto" href={isLoggedIn ? `/decks/${deck.slug}/edit` : "/auth"}>
+                {isLoggedIn ? "덱 수정" : "로그인 후 덱 수정"}
               </Link>
-              <Link className="terminal-button w-full sm:w-auto" href="/cards/new">
-                카드 추가
+              <Link className="terminal-button w-full sm:w-auto" href={isLoggedIn ? "/cards/new" : "/auth"}>
+                {isLoggedIn ? "카드 추가" : "로그인 후 카드 추가"}
               </Link>
             </div>
           </div>
@@ -103,6 +107,13 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
             <div className="terminal-notice mt-5">
               덱이 저장됐어요. 이제 카드 구성을 확인하거나 바로 수정해서 큐레이션을 더 다듬을 수 있어요.
             </div>
+          )}
+
+          {!isLoggedIn && (
+            <AuthRequiredNotice
+              className="mt-5 border border-[var(--terminal-border)] px-4 py-3 text-xs leading-6 text-[var(--terminal-soft)]"
+              message="덱 수정/카드 추가 같은 작성 액션은 로그인 후 사용할 수 있어요."
+            />
           )}
 
           <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_280px] md:gap-6">
@@ -306,8 +317,8 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
             <div className="terminal-frame p-5">
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-lg font-semibold">story map</h2>
-              <Link href="/decks/new" className="text-sm text-[var(--terminal-soft)]">
-                새 덱 →
+              <Link href={isLoggedIn ? "/decks/new" : "/auth"} className="text-sm text-[var(--terminal-soft)]">
+                {isLoggedIn ? "새 덱 →" : "로그인 후 새 덱 →"}
               </Link>
             </div>
             <div className="mt-4 space-y-3">
@@ -339,8 +350,8 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
               <h2 className="text-lg font-semibold">스토리 흐름</h2>
               <p className="mt-1 text-sm text-[var(--terminal-muted)]">이 덱에 묶인 카드를 의도된 순서대로 읽는 흐름입니다.</p>
             </div>
-            <Link className="text-sm text-[var(--terminal-soft)]" href="/cards/new">
-              카드 추가 →
+            <Link className="text-sm text-[var(--terminal-soft)]" href={isLoggedIn ? "/cards/new" : "/auth"}>
+              {isLoggedIn ? "카드 추가 →" : "로그인 후 카드 추가 →"}
             </Link>
           </div>
 
