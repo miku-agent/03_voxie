@@ -2,20 +2,46 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/lib/supabase/types";
 import { cookies } from "next/headers";
+import {
+  createMockAuthUser,
+  isMockAuthEnabled,
+  writeMockAuthCookie,
+} from "@/lib/mock-auth";
+
+function getSafeRedirectPath(next: string | null) {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) {
+    return "/";
+  }
+
+  return next;
+}
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") ?? "/";
+  const next = getSafeRedirectPath(requestUrl.searchParams.get("next"));
   const error = requestUrl.searchParams.get("error");
-  const error_description = requestUrl.searchParams.get("error_description");
+  const errorDescription = requestUrl.searchParams.get("error_description");
+  const provider = requestUrl.searchParams.get("provider");
 
   if (error) {
-    // Handle auth errors (e.g., user cancelled OAuth flow)
-    console.error("Auth callback error:", error, error_description);
+    console.error("Auth callback error:", error, errorDescription);
+    const description = errorDescription || error;
     return NextResponse.redirect(
-      new URL(`/auth?error=${encodeURIComponent(error_description || error)}`, requestUrl.origin)
+      new URL(`/auth?error=${encodeURIComponent(description)}`, requestUrl.origin)
     );
+  }
+
+  if (isMockAuthEnabled() && code?.startsWith("mock-")) {
+    const socialProvider = provider === "kakao" ? "kakao" : "google";
+    const user = createMockAuthUser({
+      email: `${socialProvider}@voxie.test`,
+      provider: socialProvider,
+      name: socialProvider === "kakao" ? "Kakao Curator" : "Google Curator",
+    });
+    const response = NextResponse.redirect(new URL(next, requestUrl.origin));
+    writeMockAuthCookie(response, user);
+    return response;
   }
 
   if (code) {
@@ -53,10 +79,10 @@ export async function GET(request: Request) {
       );
     }
 
-    // Successful authentication - redirect to intended destination
     return NextResponse.redirect(new URL(next, requestUrl.origin));
   }
 
-  // No code provided - redirect to auth page
   return NextResponse.redirect(new URL("/auth", requestUrl.origin));
 }
+
+export { getSafeRedirectPath };

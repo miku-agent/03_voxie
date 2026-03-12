@@ -35,9 +35,9 @@ export default async function AuthPage() {
             <div className="mt-6 terminal-frame p-4 text-sm leading-7 text-[var(--terminal-soft)]">
               <p>이번 PR 범위</p>
               <ul className="mt-3 list-disc space-y-2 pl-5 text-[var(--terminal-muted)]">
-                <li>로그인 / 회원가입 / 로그아웃 진입점</li>
-                <li>서버와 레이아웃에서 current user 읽기</li>
-                <li>로그인 상태를 UI에서 구분해서 보여주기</li>
+                <li>이메일 로그인 / 회원가입 / 로그아웃 진입점</li>
+                <li>Google OAuth 로그인 연결</li>
+                <li>세션 복원 후 redirect / 실패 메시지 처리</li>
               </ul>
             </div>
           </div>
