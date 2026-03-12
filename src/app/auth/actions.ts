@@ -7,9 +7,13 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export async function signOut() {
   const supabase = await createSupabaseServerClient();
   if (supabase) {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Sign out error:", error);
+    }
   }
 
+  // Clear cache and redirect to auth page
   revalidatePath("/", "layout");
-  redirect("/auth");
+  redirect("/");
 }

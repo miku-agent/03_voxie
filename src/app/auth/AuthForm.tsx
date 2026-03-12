@@ -1,19 +1,22 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Mode = "signin" | "signup";
 
 export default function AuthForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const redirectedFrom = searchParams.get("redirectedFrom");
+  const error = searchParams.get("error");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -28,7 +31,13 @@ export default function AuthForm() {
     const response =
       mode === "signin"
         ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
+        : await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/callback`,
+            },
+          });
 
     setSubmitting(false);
 
@@ -37,12 +46,20 @@ export default function AuthForm() {
       return;
     }
 
-    setStatus(
-      mode === "signin"
-        ? "로그인됐어요. 세션을 새로 반영할게요."
-        : "가입 요청이 처리됐어요. 메일 인증이 켜져 있으면 확인 후 로그인해 주세요."
-    );
-    router.refresh();
+    if (mode === "signin" && response.data.user) {
+      // Successful sign in - redirect to intended page or home
+      const redirectTo = redirectedFrom || "/";
+      router.push(redirectTo);
+      router.refresh();
+    } else if (mode === "signup") {
+      setStatus("가입 요청이 처리됐어요. 메일 인증이 켜져 있으면 확인 후 로그인해 주세요.");
+      // If email confirmation is disabled, auto-sign in
+      if (response.data.user && response.data.session) {
+        const redirectTo = redirectedFrom || "/";
+        router.push(redirectTo);
+        router.refresh();
+      }
+    }
   };
 
   return (
@@ -100,6 +117,11 @@ export default function AuthForm() {
         <p>로그인 후 likes / bookmarks / follows 가 내 계정 기준으로 저장됩니다.</p>
       </div>
 
+      {error && (
+        <p className="mt-4 text-sm text-[var(--terminal-error)]">
+          오류: {decodeURIComponent(error)}
+        </p>
+      )}
       {status && <p className="mt-4 text-sm text-[var(--terminal-soft)]">{status}</p>}
     </div>
   );
