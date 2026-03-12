@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { isMockAuthEnabled } from "@/lib/mock-auth";
 import { Database } from "./types";
 
 export function getSupabaseEnv() {
@@ -46,7 +47,7 @@ export function requireSupabaseClient() {
 }
 
 export function isSupabaseConfigured(): boolean {
-  return !!supabase;
+  return isMockAuthEnabled() || !!supabase;
 }
 
 export type SupabaseCard = Database["public"]["Tables"]["cards"]["Row"];

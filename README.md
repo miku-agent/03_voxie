@@ -98,12 +98,19 @@ pnpm test:e2e
 `.env.local`에 아래 값을 설정합니다.
 
 ```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+
+# optional compatibility aliases
 SUPABASE_URL=...
 SUPABASE_ANON_KEY=...
+
+# optional: expose Kakao CTA only after Supabase provider setup is ready
+NEXT_PUBLIC_ENABLE_KAKAO_AUTH=0
 ```
 
-이 값들은 현재 **Next 서버 측 경로**에서 사용합니다.
-브라우저 공개용 `NEXT_PUBLIC_*` 기준으로 직접 붙는 구조를 전제로 하지 않습니다.
+현재 auth/middleware/OAuth hand-off는 `NEXT_PUBLIC_*` 값을 기준으로 동작합니다.
+서버 측 alias(`SUPABASE_*`)도 계속 허용하지만, 실제 소셜 로그인 연결 전에는 `NEXT_PUBLIC_*`를 우선 맞춰 주세요.
 
 ### 데이터베이스 초기화
 Supabase SQL Editor에서 아래 파일을 순서대로 실행합니다.
@@ -170,8 +177,15 @@ CD 워크플로우는 빌드 전에 이 파일 존재 여부를 검사합니다.
 
 필수 값:
 ```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
+
+선택 값:
+```bash
 SUPABASE_URL=...
 SUPABASE_ANON_KEY=...
+NEXT_PUBLIC_ENABLE_KAKAO_AUTH=1 # Kakao provider가 준비된 경우만
 ```
 
 ### 중요한 제약

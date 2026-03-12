@@ -22,6 +22,7 @@ function cloneCards(): Card[] {
 function cloneDecks(): Deck[] {
   return (seedDecks as Deck[]).map((deck) => ({
     ...deck,
+    ownerUserId: deck.ownerUserId ?? "user-1",
     tags: [...deck.tags],
     cards: [...deck.cards],
   }));

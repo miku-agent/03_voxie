@@ -1,19 +1,35 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Mode = "signin" | "signup";
+type SocialProvider = "google" | "kakao";
+
+const socialProviders: Array<{ provider: SocialProvider; label: string; theme?: string }> = [
+  { provider: "google", label: "Google" },
+  { provider: "kakao", label: "카카오", theme: "bg-[#FEE500] text-[#000000] hover:bg-[#FDD835]" },
+];
 
 export default function AuthForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const redirectedFrom = searchParams.get("redirectedFrom");
+  const error = searchParams.get("error");
+  const message = searchParams.get("message");
+  const enabledProviders = socialProviders.filter(({ provider }) => {
+    if (provider === "kakao") {
+      return process.env.NEXT_PUBLIC_ENABLE_KAKAO_AUTH === "1";
+    }
+    return true;
+  });
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -28,7 +44,13 @@ export default function AuthForm() {
     const response =
       mode === "signin"
         ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
+        : await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/callback`,
+            },
+          });
 
     setSubmitting(false);
 
@@ -37,12 +59,41 @@ export default function AuthForm() {
       return;
     }
 
-    setStatus(
-      mode === "signin"
-        ? "로그인됐어요. 세션을 새로 반영할게요."
-        : "가입 요청이 처리됐어요. 메일 인증이 켜져 있으면 확인 후 로그인해 주세요."
-    );
-    router.refresh();
+    if (mode === "signin" && response.data.user) {
+      const redirectTo = redirectedFrom || "/";
+      router.push(redirectTo);
+      router.refresh();
+    } else if (mode === "signup") {
+      setStatus("가입 요청이 처리됐어요. 메일 인증이 켜져 있으면 확인 후 로그인해 주세요.");
+      if (response.data.user && response.data.session) {
+        const redirectTo = redirectedFrom || "/";
+        router.push(redirectTo);
+        router.refresh();
+      }
+    }
+  };
+
+  const handleSocialLogin = async (provider: SocialProvider) => {
+    if (!supabase) {
+      setStatus("Supabase auth is not configured yet.");
+      return;
+    }
+
+    setSubmitting(true);
+    setStatus(`${provider === "google" ? "Google" : "카카오"} 로그인으로 이동하는 중...`);
+    const redirectTo = `${window.location.origin}/auth/callback${redirectedFrom ? `?next=${encodeURIComponent(redirectedFrom)}` : ""}`;
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo,
+      },
+    });
+
+    if (error) {
+      setSubmitting(false);
+      setStatus(error.message);
+    }
   };
 
   return (
@@ -95,11 +146,44 @@ export default function AuthForm() {
         </button>
       </form>
 
+      {enabledProviders.length > 0 && (
+        <div className="mt-6 space-y-3">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[var(--terminal-frame-border)]" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-[var(--terminal-bg)] px-2 text-[var(--terminal-muted)]">또는</span>
+            </div>
+          </div>
+
+          {enabledProviders.map(({ provider, label, theme }) => (
+            <button
+              key={provider}
+              type="button"
+              onClick={() => handleSocialLogin(provider)}
+              className={`terminal-button flex w-full items-center justify-center gap-2 ${theme ?? ""}`.trim()}
+              disabled={submitting}
+            >
+              {label}로 {mode === "signin" ? "로그인" : "시작하기"}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="mt-5 text-xs leading-6 text-[var(--terminal-muted)]">
         <p>Supabase Auth 세션으로 로그인 상태가 즉시 반영돼요.</p>
         <p>로그인 후 likes / bookmarks / follows 가 내 계정 기준으로 저장됩니다.</p>
       </div>
 
+      {error && (
+        <p className="mt-4 text-sm text-[var(--terminal-error)]">
+          오류: {decodeURIComponent(error)}
+        </p>
+      )}
+      {!error && message && (
+        <p className="mt-4 text-sm text-[var(--terminal-soft)]">{decodeURIComponent(message)}</p>
+      )}
       {status && <p className="mt-4 text-sm text-[var(--terminal-soft)]">{status}</p>}
     </div>
   );
