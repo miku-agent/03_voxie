@@ -16,10 +16,9 @@ export default async function UserProfilePage({ params }: Props) {
 
   if (!profile) notFound();
 
-  const [cards, decks] = await Promise.all([listCards(), listDecks()]);
+  const [cards, decks, social] = await Promise.all([listCards(), listDecks(), getProfileSocialMeta(handle)]);
   const authoredCards = cards.filter((card) => card.authorHandle === handle);
   const authoredDecks = decks.filter((deck) => deck.authorHandle === handle);
-  const social = getProfileSocialMeta(handle);
 
   return (
     <div className="min-h-screen text-white">
@@ -39,7 +38,13 @@ export default async function UserProfilePage({ params }: Props) {
                 <span>{authoredDecks.length} decks</span>
                 <span>{social.followers} followers</span>
               </div>
-              <FollowCuratorButton name={profile.name} initialFollowers={social.followers} />
+              <FollowCuratorButton
+                handle={profile.handle}
+                name={profile.name}
+                initialFollowers={social.followers}
+                initiallyFollowing={social.viewerIsFollowing}
+                requiresAuth={social.requiresAuth}
+              />
             </div>
 
             <aside className="terminal-frame p-4">

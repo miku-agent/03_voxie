@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
-import { toggleDeckBookmark, toggleDeckLike } from "@/lib/actions/social";
+import { toggleCuratorFollow, toggleDeckBookmark, toggleDeckLike } from "@/lib/actions/social";
 
 type Props = {
   slug: string;
@@ -10,9 +10,12 @@ type Props = {
   initialBookmarks: number;
   initiallyLiked: boolean;
   initiallyBookmarked: boolean;
+  curatorHandle?: string;
   curatorName?: string;
   initialFollowers: number;
+  initiallyFollowing: boolean;
   requiresAuth: boolean;
+  followRequiresAuth: boolean;
 };
 
 export default function SocialActions({
@@ -21,13 +24,16 @@ export default function SocialActions({
   initialBookmarks,
   initiallyLiked,
   initiallyBookmarked,
+  curatorHandle,
   curatorName,
   initialFollowers,
+  initiallyFollowing,
   requiresAuth,
+  followRequiresAuth,
 }: Props) {
   const [liked, setLiked] = useState(initiallyLiked);
   const [bookmarked, setBookmarked] = useState(initiallyBookmarked);
-  const [followed, setFollowed] = useState(false);
+  const [followed, setFollowed] = useState(initiallyFollowing);
   const [pending, startTransition] = useTransition();
   const [status, setStatus] = useState<string | null>(null);
 
@@ -36,7 +42,10 @@ export default function SocialActions({
     () => initialBookmarks + (bookmarked ? 1 : 0) - (initiallyBookmarked ? 1 : 0),
     [initialBookmarks, bookmarked, initiallyBookmarked],
   );
-  const followers = useMemo(() => initialFollowers + (followed ? 1 : 0), [initialFollowers, followed]);
+  const followers = useMemo(
+    () => initialFollowers + (followed ? 1 : 0) - (initiallyFollowing ? 1 : 0),
+    [initialFollowers, followed, initiallyFollowing],
+  );
 
   const handleLike = () => {
     startTransition(async () => {
@@ -68,11 +77,28 @@ export default function SocialActions({
     });
   };
 
+  const handleFollow = () => {
+    if (!curatorHandle) return;
+
+    startTransition(async () => {
+      const previous = followed;
+      setStatus(null);
+      setFollowed(!previous);
+      const result = await toggleCuratorFollow(curatorHandle);
+      if (!result.success) {
+        setFollowed(previous);
+        setStatus(result.error ?? "팔로우 상태를 저장하지 못했어요.");
+        return;
+      }
+      setFollowed(Boolean(result.followed));
+    });
+  };
+
   return (
     <div className="terminal-frame p-4">
       <p className="text-sm font-semibold">가벼운 액션</p>
       <p className="mt-2 text-xs leading-6 text-[var(--terminal-muted)]">
-        이제 좋아요와 북마크는 로그인한 사용자 기준으로 실제 저장돼요. 팔로우는 아직 다음 단계에서 이어집니다.
+        좋아요, 북마크, 팔로우가 모두 로그인한 사용자 기준으로 실제 저장돼요.
       </p>
 
       {requiresAuth && (
@@ -100,14 +126,22 @@ export default function SocialActions({
           <span>{bookmarked ? "북마크 해제" : "북마크"}</span>
           <span>{bookmarks}</span>
         </button>
-        <button
-          type="button"
-          className="terminal-button w-full justify-between"
-          onClick={() => setFollowed((value) => !value)}
-        >
-          <span>{followed ? `${curatorName ?? "큐레이터"} 언팔로우` : `${curatorName ?? "큐레이터"} 팔로우`}</span>
-          <span>{followers}</span>
-        </button>
+        {followRequiresAuth ? (
+          <Link href="/auth" className="terminal-button w-full justify-between">
+            <span>{curatorName ?? "큐레이터"} 팔로우</span>
+            <span>{followers}</span>
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="terminal-button w-full justify-between"
+            onClick={handleFollow}
+            disabled={pending || !curatorHandle}
+          >
+            <span>{followed ? `${curatorName ?? "큐레이터"} 언팔로우` : `${curatorName ?? "큐레이터"} 팔로우`}</span>
+            <span>{followers}</span>
+          </button>
+        )}
       </div>
 
       {status && <p className="mt-3 text-xs leading-6 text-[var(--terminal-soft)]">{status}</p>}
