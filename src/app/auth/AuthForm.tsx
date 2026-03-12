@@ -96,8 +96,8 @@ export default function AuthForm() {
       </form>
 
       <div className="mt-5 text-xs leading-6 text-[var(--terminal-muted)]">
-        <p>이번 단계는 auth/session plumbing이 목표예요.</p>
-        <p>like / bookmark / follow 실제 저장은 다음 이슈에서 연결됩니다.</p>
+        <p>Supabase Auth 세션으로 로그인 상태가 즉시 반영돼요.</p>
+        <p>로그인 후 likes / bookmarks / follows 가 내 계정 기준으로 저장됩니다.</p>
       </div>
 
       {status && <p className="mt-4 text-sm text-[var(--terminal-soft)]">{status}</p>}

@@ -15,7 +15,6 @@ describe("deck actions", () => {
   it("returns a local mode error when deck creation is attempted without Supabase", async () => {
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => false,
-      supabase: null,
     }));
     vi.doMock("@/lib/authored-content", () => ({
       requireCurrentAuthoredProfile: () =>
@@ -76,7 +75,9 @@ describe("deck actions", () => {
 
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => true,
-      supabase: { from },
+    }));
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve({ from }),
     }));
     vi.doMock("@/lib/authored-content", () => ({
       requireCurrentAuthoredProfile: () =>
@@ -172,7 +173,9 @@ describe("deck actions", () => {
 
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => true,
-      supabase: { from },
+    }));
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve({ from }),
     }));
     vi.doMock("@/lib/authored-content", () => ({
       requireCurrentAuthoredProfile: () =>
@@ -238,7 +241,9 @@ describe("deck actions", () => {
 
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => true,
-      supabase: { from },
+    }));
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve({ from }),
     }));
     vi.doMock("@/lib/authored-content", () => ({
       requireCurrentAuthoredProfile: () =>
@@ -277,7 +282,9 @@ describe("deck actions", () => {
 
     vi.doMock("@/lib/supabase/client", () => ({
       isSupabaseConfigured: () => true,
-      supabase: { from },
+    }));
+    vi.doMock("@/lib/supabase/server", () => ({
+      createSupabaseServerClient: () => Promise.resolve({ from }),
     }));
     vi.doMock("@/lib/authored-content", () => ({
       requireCurrentAuthoredProfile: () =>

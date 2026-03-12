@@ -2,7 +2,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { DeckPayload } from "@/lib/deck-form";
 import { buildDeckUpdatePayload } from "@/lib/deck-edit";
 import { requireCurrentAuthoredProfile } from "@/lib/authored-content";
@@ -58,7 +59,15 @@ export async function createDeck(payload: DeckPayload) {
       };
     }
 
-    if (!isSupabaseConfigured() || !supabase) {
+    if (!isSupabaseConfigured()) {
+      return {
+        success: false,
+        error: "Supabase not configured. Deck creation is disabled in local mode.",
+      };
+    }
+
+    const supabase = await createSupabaseServerClient();
+    if (!supabase) {
       return {
         success: false,
         error: "Supabase not configured. Deck creation is disabled in local mode.",
@@ -204,7 +213,15 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
       };
     }
 
-    if (!isSupabaseConfigured() || !supabase) {
+    if (!isSupabaseConfigured()) {
+      return {
+        success: false,
+        error: "Supabase not configured. Deck editing is disabled in local mode.",
+      };
+    }
+
+    const supabase = await createSupabaseServerClient();
+    if (!supabase) {
       return {
         success: false,
         error: "Supabase not configured. Deck editing is disabled in local mode.",
