@@ -9,6 +9,7 @@ import { requireCurrentAuthoredProfile } from "@/lib/authored-content";
 import {
   insertMockDeck,
   isMockWriteModeEnabled,
+  listMockDecks,
   updateMockDeck,
 } from "@/lib/mock-db";
 
@@ -149,8 +150,31 @@ export async function createDeck(payload: DeckPayload) {
 export async function updateDeck(deckSlug: string, input: Parameters<typeof buildDeckUpdatePayload>[0]) {
   try {
     const payload = buildDeckUpdatePayload(input);
+    const authored = await requireCurrentAuthoredProfile();
+
+    if ("error" in authored) {
+      return {
+        success: false,
+        error: authored.error,
+      };
+    }
 
     if (isMockWriteModeEnabled()) {
+      const existingDeck = listMockDecks().find((deck) => deck.slug === deckSlug);
+
+      if (!existingDeck) {
+        return {
+          success: false,
+          error: "Deck not found",
+        };
+      }
+
+      if (!existingDeck.ownerUserId || existingDeck.ownerUserId !== authored.identity.userId) {
+        return {
+          success: false,
+          error: "Unauthorized: only the owner can edit this deck",
+        };
+      }
       const updated = updateMockDeck(deckSlug, {
         name: payload.name,
         description: payload.description,
@@ -189,7 +213,7 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
 
     const { data: existingDeck, error: fetchError } = await supabase
       .from("decks")
-      .select("id")
+      .select("id, owner_user_id")
       .eq("slug", deckSlug)
       .single();
 
@@ -198,6 +222,13 @@ export async function updateDeck(deckSlug: string, input: Parameters<typeof buil
       return {
         success: false,
         error: "Deck not found",
+      };
+    }
+
+    if (!(existingDeck as any).owner_user_id || (existingDeck as any).owner_user_id !== authored.identity.userId) {
+      return {
+        success: false,
+        error: "Unauthorized: only the owner can edit this deck",
       };
     }
 

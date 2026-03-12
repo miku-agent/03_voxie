@@ -13,7 +13,7 @@ import AuthRequiredNotice from "@/components/AuthRequiredNotice";
 
 type Props = {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ created?: string }>;
+  searchParams?: Promise<{ created?: string; error?: string }>;
 };
 
 export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
@@ -80,6 +80,7 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
   const relatedCards = cards.length > 0 ? getRelatedCards(cards[0], allCards) : [];
   const currentUser = await getCurrentUser();
   const isLoggedIn = Boolean(currentUser);
+  const isOwner = Boolean(currentUser && deck.ownerUserId && currentUser.id === deck.ownerUserId);
   const social = await getDeckSocialMeta(deck.slug);
   const profileSocial = deck.authorHandle
     ? await getProfileSocialMeta(deck.authorHandle)
@@ -94,9 +95,11 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
               ← 덱 목록
             </Link>
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
-              <Link className="terminal-button w-full sm:w-auto" href={isLoggedIn ? `/decks/${deck.slug}/edit` : "/auth"}>
-                {isLoggedIn ? "덱 수정" : "로그인 후 덱 수정"}
-              </Link>
+              {isOwner && (
+                <Link className="terminal-button w-full sm:w-auto" href={`/decks/${deck.slug}/edit`}>
+                  덱 수정
+                </Link>
+              )}
               <Link className="terminal-button w-full sm:w-auto" href={isLoggedIn ? "/cards/new" : "/auth"}>
                 {isLoggedIn ? "카드 추가" : "로그인 후 카드 추가"}
               </Link>
@@ -109,11 +112,23 @@ export default async function DeckDetailPage({ params, searchParams }: Props) {
             </div>
           )}
 
+          {resolvedSearchParams.error === "forbidden" && (
+            <div className="terminal-notice mt-5 border border-red-500/50 bg-red-500/10 text-red-100">
+              이 덱은 작성자(owner)만 수정할 수 있어요.
+            </div>
+          )}
+
           {!isLoggedIn && (
             <AuthRequiredNotice
               className="mt-5 border border-[var(--terminal-border)] px-4 py-3 text-xs leading-6 text-[var(--terminal-soft)]"
               message="덱 수정/카드 추가 같은 작성 액션은 로그인 후 사용할 수 있어요."
             />
+          )}
+
+          {isLoggedIn && !isOwner && (
+            <div className="mt-5 border border-[var(--terminal-border)] px-4 py-3 text-xs leading-6 text-[var(--terminal-soft)]">
+              이 덱의 수정 권한은 작성자(owner)에게만 있어요.
+            </div>
           )}
 
           <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_280px] md:gap-6">

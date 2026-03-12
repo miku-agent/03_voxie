@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getDeckBySlugAsync, listDecks } from "@/lib/decks";
 import { listCards } from "@/lib/cards";
+import { getCurrentUser } from "@/lib/auth";
 import DeckEditClient from "./DeckEditClient";
 
 type Props = {
@@ -14,6 +16,12 @@ export async function generateStaticParams() {
 
 export default async function DeckEditPage({ params }: Props) {
   const { slug } = await params;
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    redirect("/auth");
+  }
+
   const [deck, cards] = await Promise.all([getDeckBySlugAsync(slug), listCards()]);
 
   if (!deck) {
@@ -29,6 +37,10 @@ export default async function DeckEditPage({ params }: Props) {
         </main>
       </div>
     );
+  }
+
+  if (!deck.ownerUserId || deck.ownerUserId !== currentUser.id) {
+    redirect(`/decks/${slug}?error=forbidden`);
   }
 
   return <DeckEditClient deck={deck} cards={cards} />;
